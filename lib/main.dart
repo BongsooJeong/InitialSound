@@ -246,6 +246,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Flutter Demo',
             theme: ThemeData.from(
+              useMaterial3: true,
               colorScheme: ColorScheme.fromSeed(
                 seedColor: palette.darkPen,
                 background: palette.backgroundMain,

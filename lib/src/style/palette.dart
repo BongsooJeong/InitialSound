@@ -30,8 +30,10 @@ class Palette {
   Color get ink => Colors.white;
   Color get backgroundMain => Colors.transparent;
   Color get backgroundLevelSelection => const Color(0xffa2dcc7);
-  Color get backgroundPlaySession => const Color(0xffffebb5);
+  Color get backgroundPlaySession => Colors.grey.shade300;
+  Color get backgroundGrey => Colors.grey.shade300;
   Color get background4 => const Color(0xffffd7ff);
   Color get backgroundSettings => const Color(0xffbfc8e3);
   Color get trueWhite => const Color(0xffffffff);
+  Color get appMainColor => Colors.blue;
 }

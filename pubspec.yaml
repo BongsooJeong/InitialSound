@@ -28,6 +28,7 @@ dependencies:
   games_services: ^3.0.0  # Achievements and leaderboards
   google_mobile_ads: ^2.0.1  # Ads
   in_app_purchase: ^3.0.1  # In-app purchases
+  font_awesome_flutter: ^10.3.0
 
 dev_dependencies:
   flutter_test:
@@ -42,13 +43,14 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/gamebg/
     - assets/music/
     - assets/sfx/
 
   fonts:
-    - family: Permanent Marker
+    - family: Retrosans
       fonts:
-        - asset: assets/Permanent_Marker/PermanentMarker-Regular.ttf
+        - asset: assets/fonts/establish_Retrosans.ttf
 
 flutter_icons:
   android: true

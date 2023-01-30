@@ -4,7 +4,10 @@
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:game_template/src/play_session/const_data.dart';
+import 'package:game_template/src/play_session/widget/keyboard_layout.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart' hide Level;
 import 'package:provider/provider.dart';
@@ -12,6 +15,8 @@ import 'package:provider/provider.dart';
 import '../ads/ads_controller.dart';
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
+import '../constants/gaps.dart';
+import '../constants/sizes.dart';
 import '../game_internals/level_state.dart';
 import '../games_services/games_services.dart';
 import '../games_services/score.dart';
@@ -20,6 +25,10 @@ import '../level_selection/levels.dart';
 import '../player_progress/player_progress.dart';
 import '../style/confetti.dart';
 import '../style/palette.dart';
+import 'widget/result_character.dart';
+
+const initialData = ['ㅅ', 'ㅅ', 'ㅋ', ' ', 'ㅌ', 'ㅊ'];
+const initialResult = "쇼생크 탈출";
 
 class PlaySessionScreen extends StatefulWidget {
   final GameLevel level;
@@ -32,13 +41,11 @@ class PlaySessionScreen extends StatefulWidget {
 
 class _PlaySessionScreenState extends State<PlaySessionScreen> {
   static final _log = Logger('PlaySessionScreen');
-
   static const _celebrationDuration = Duration(milliseconds: 2000);
-
   static const _preCelebrationDuration = Duration(milliseconds: 500);
 
+  int _characterIndex = 0;
   bool _duringCelebration = false;
-
   late DateTime _startOfPlay;
 
   @override
@@ -56,63 +63,186 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       ],
       child: IgnorePointer(
         ignoring: _duringCelebration,
-        child: Scaffold(
-          backgroundColor: palette.backgroundPlaySession,
-          body: Stack(
-            children: [
-              Center(
-                // This is the entirety of the "game".
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: AssetImage('assets/images/gamebg/1.jpg'),
+            ),
+          ),
+          child: Scaffold(
+            backgroundColor: palette.backgroundPlaySession.withOpacity(0.90),
+            appBar: AppBar(
+              title: Text(
+                'ㅊㅅ Quiz',
+                style: TextStyle(
+                  fontFamily: 'Retrosans',
+                ),
+              ),
+              backgroundColor: Colors.white.withOpacity(0.4),
+            ),
+            body: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Sizes.size20,
+                    vertical: Sizes.size40,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      /*                       Align(
+                        alignment: Alignment.centerRight,
+                        child: InkResponse(
+                          onTap: () => GoRouter.of(context).push('/settings'),
+                          child: Image.asset(
+                            'assets/images/settings.png',
+                            semanticLabel: 'Settings',
+                            color: Colors.white,
+                          ),
+                        ),
+                      ), */
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.movie_rounded,
+                            color: palette.appMainColor,
+                            size: Sizes.size40,
+                          ),
+                          Gaps.h14,
+                          Text(
+                            '영화제목',
+                            style: TextStyle(
+                              fontFamily: 'Retrosans',
+                              fontSize: Sizes.size32,
+                              letterSpacing: 3,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gaps.v40,
+                      Wrap(
+                        spacing: Sizes.size12,
+                        children: [
+                          for (int i = 0; i < initialData.length; i++)
+                            (initialData[i] != ' ')
+                                ? ResultCharacter(
+                                    initial: initialData[i],
+                                    isFocused: (_characterIndex == i),
+                                  )
+                                : Gaps.h14,
+                        ],
+                      ),
+                      Gaps.v32,
+/*                       Container(
+                        padding: EdgeInsets.only(
+                          left: Sizes.size12,
+                          right: Sizes.size12,
+                          bottom: Sizes.size6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(
+                            color: Colors.black.withOpacity(0.2),
+                          ),
+                        ),
+                        child: Text(
+                          '쇼',
+                          style: TextStyle(
+                            color: palette.appMainColor,
+                            fontSize: Sizes.size44,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+ */
+/*                       Consumer<LevelState>(
+                        builder: (context, levelState, child) => Slider(
+                          label: 'Level Progress',
+                          autofocus: true,
+                          value: levelState.progress / 100,
+                          onChanged: (value) =>
+                              levelState.setProgress((value * 100).round()),
+                          onChangeEnd: (value) => levelState.evaluate(),
+                        ),
+                      ), */
+                      KeyboardLayout(
+                        layout: keyboardType.motherKey,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox.expand(
+                  child: Visibility(
+                    visible: _duringCelebration,
+                    child: IgnorePointer(
+                      child: Confetti(
+                        isStopped: !_duringCelebration,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            bottomNavigationBar: BottomAppBar(
+              color: Colors.white.withOpacity(0.5),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Sizes.size32,
+                  vertical: Sizes.size16,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: InkResponse(
-                        onTap: () => GoRouter.of(context).push('/settings'),
-                        child: Image.asset(
-                          'assets/images/settings.png',
-                          semanticLabel: 'Settings',
+                    CupertinoButton(
+                      color: palette.appMainColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Sizes.size32,
+                        vertical: Sizes.size12,
+                      ),
+                      onPressed: () => GoRouter.of(context).go('/play'),
+                      child: Text(
+                        'Reset',
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                    const Spacer(),
-                    Text('Drag the slider to ${widget.level.difficulty}%'
-                        ' or above!'),
-                    Consumer<LevelState>(
-                      builder: (context, levelState, child) => Slider(
-                        label: 'Level Progress',
-                        autofocus: true,
-                        value: levelState.progress / 100,
-                        onChanged: (value) =>
-                            levelState.setProgress((value * 100).round()),
-                        onChangeEnd: (value) => levelState.evaluate(),
+                    CupertinoButton(
+                      color: palette.appMainColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Sizes.size32,
+                        vertical: Sizes.size12,
+                      ),
+                      onPressed: () => GoRouter.of(context).go('/play'),
+                      child: Text(
+                        'Skip',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => GoRouter.of(context).go('/play'),
-                          child: const Text('Back'),
+                    CupertinoButton(
+                      color: palette.appMainColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Sizes.size32,
+                        vertical: Sizes.size12,
+                      ),
+                      onPressed: () => GoRouter.of(context).go('/play'),
+                      child: Text(
+                        'Back',
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox.expand(
-                child: Visibility(
-                  visible: _duringCelebration,
-                  child: IgnorePointer(
-                    child: Confetti(
-                      isStopped: !_duringCelebration,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

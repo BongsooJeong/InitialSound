@@ -53,6 +53,7 @@ class MainMenuScreen extends StatelessWidget {
                       fontSize: 110,
                       fontWeight: FontWeight.w700,
                       height: 1,
+                      fontFamily: 'Retrosans',
                     ),
                   ),
                 ),
@@ -70,6 +71,7 @@ class MainMenuScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w500,
+                      fontFamily: 'Retrosans',
                       shadows: <Shadow>[
                         Shadow(
                           offset: Offset(7.0, 7.0),
@@ -115,7 +117,8 @@ class MainMenuScreen extends StatelessWidget {
                   child: const Text(
                     '시작하기',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Retrosans',
+                      fontSize: 20,
                     ),
                   ),
                 ),
@@ -162,7 +165,13 @@ class MainMenuScreen extends StatelessWidget {
                     audioController.playSfx(SfxType.buttonTap);
                     GoRouter.of(context).go('/settings');
                   },
-                  child: const Text('설정하기'),
+                  child: Text(
+                    '설정하기',
+                    style: TextStyle(
+                      fontFamily: 'Retrosans',
+                      fontSize: 20,
+                    ),
+                  ),
                 ),
               ),
               _gap,
