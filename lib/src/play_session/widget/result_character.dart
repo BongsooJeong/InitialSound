@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:game_template/src/constants/gaps.dart';
+import 'package:game_template/src/constants/const_data.dart';
 
 import '../../constants/sizes.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 class ResultCharacter extends StatelessWidget {
   const ResultCharacter({
@@ -16,36 +16,18 @@ class ResultCharacter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(
-        Sizes.size14,
+    return Neumorphic(
+      padding: EdgeInsets.all(Sizes.size12),
+      style: NeumorphicStyle(
+        boxShape: NeumorphicBoxShape.circle(),
       ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.black.withOpacity(0.2),
+      child: Text(
+        _initial,
+        style: TextStyle(
+          color: _isFocused ? GameSecondaryColor : GameDarkColor,
+          fontSize: Sizes.size36,
+          fontWeight: _isFocused ? FontWeight.bold : FontWeight.normal,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 5,
-            spreadRadius: 5,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            _initial,
-            style: TextStyle(
-              color: _isFocused ? Colors.blue : Colors.black,
-              fontSize: Sizes.size32,
-              fontWeight: _isFocused ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          Gaps.v6,
-        ],
       ),
     );
   }

@@ -36,4 +36,5 @@ class Palette {
   Color get backgroundSettings => const Color(0xffbfc8e3);
   Color get trueWhite => const Color(0xffffffff);
   Color get appMainColor => Colors.blue;
+
 }

@@ -4,13 +4,14 @@
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:game_template/src/play_session/const_data.dart';
-import 'package:game_template/src/play_session/widget/keyboard_layout.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:game_template/src/constants/const_data.dart';
+import 'package:game_template/src/play_session/fragment/keyboard_layout.dart';
+import 'package:game_template/src/play_session/model/string_info.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart' hide Level;
 import 'package:provider/provider.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 import '../ads/ads_controller.dart';
 import '../audio/audio_controller.dart';
@@ -24,11 +25,8 @@ import '../in_app_purchase/in_app_purchase.dart';
 import '../level_selection/levels.dart';
 import '../player_progress/player_progress.dart';
 import '../style/confetti.dart';
-import '../style/palette.dart';
-import 'widget/result_character.dart';
-
-const initialData = ['ㅅ', 'ㅅ', 'ㅋ', ' ', 'ㅌ', 'ㅊ'];
-const initialResult = "쇼생크 탈출";
+import 'fragment/quiz_info_fragment.dart';
+import 'widget/keyboard_button.dart';
 
 class PlaySessionScreen extends StatefulWidget {
   final GameLevel level;
@@ -47,11 +45,14 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   int _characterIndex = 0;
   bool _duringCelebration = false;
   late DateTime _startOfPlay;
+  InputStatus _currentInputStatus = InputStatus.step1_mother;
+  KeyboardType _currentKeyboardType = KeyboardType.motherKey1;
+
+  StringInfo _initialResult = StringInfo().setInfoFromString("쇼생크 탈출");
+  StringInfo _currentResult = StringInfo();
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.watch<Palette>();
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -71,16 +72,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
             ),
           ),
           child: Scaffold(
-            backgroundColor: palette.backgroundPlaySession.withOpacity(0.90),
-            appBar: AppBar(
-              title: Text(
-                'ㅊㅅ Quiz',
-                style: TextStyle(
-                  fontFamily: 'Retrosans',
-                ),
-              ),
-              backgroundColor: Colors.white.withOpacity(0.4),
-            ),
+            backgroundColor: Colors.grey.shade300.withOpacity(0.95),
             body: Stack(
               children: [
                 Padding(
@@ -91,74 +83,31 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      /*                       Align(
-                        alignment: Alignment.centerRight,
-                        child: InkResponse(
-                          onTap: () => GoRouter.of(context).push('/settings'),
-                          child: Image.asset(
-                            'assets/images/settings.png',
-                            semanticLabel: 'Settings',
-                            color: Colors.white,
-                          ),
-                        ),
-                      ), */
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.movie_rounded,
-                            color: palette.appMainColor,
-                            size: Sizes.size40,
-                          ),
-                          Gaps.h14,
-                          Text(
-                            '영화제목',
-                            style: TextStyle(
-                              fontFamily: 'Retrosans',
-                              fontSize: Sizes.size32,
-                              letterSpacing: 3,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gaps.v40,
-                      Wrap(
-                        spacing: Sizes.size12,
-                        children: [
-                          for (int i = 0; i < initialData.length; i++)
-                            (initialData[i] != ' ')
-                                ? ResultCharacter(
-                                    initial: initialData[i],
-                                    isFocused: (_characterIndex == i),
-                                  )
-                                : Gaps.h14,
-                        ],
-                      ),
                       Gaps.v32,
-/*                       Container(
-                        padding: EdgeInsets.only(
-                          left: Sizes.size12,
-                          right: Sizes.size12,
-                          bottom: Sizes.size6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: Colors.black.withOpacity(0.2),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: NeumorphicText(
+                          'ㅊㅅ Quiz',
+                          style: NeumorphicStyle(
+                            color: GameInfoColor,
+                            depth: 4,
+                            intensity: 1,
+                            shadowLightColor: Colors.white,
+                            shadowDarkColor: Colors.grey,
                           ),
-                        ),
-                        child: Text(
-                          '쇼',
-                          style: TextStyle(
-                            color: palette.appMainColor,
-                            fontSize: Sizes.size44,
-                            fontWeight: FontWeight.bold,
+                          textStyle: NeumorphicTextStyle(
+                            fontSize: Sizes.size28,
+                            fontFamily: 'Retrosans',
                           ),
                         ),
                       ),
- */
+                      Gaps.v5,
+                      QuizInfoFragment(
+                        characterIndex: _characterIndex,
+                        hintList: _currentResult.getStringAsArray(),
+                        callBack: _onFocusTapped,
+                      ),
+                      Spacer(),
 /*                       Consumer<LevelState>(
                         builder: (context, levelState, child) => Slider(
                           label: 'Level Progress',
@@ -170,8 +119,92 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                         ),
                       ), */
                       KeyboardLayout(
-                        layout: keyboardType.motherKey,
+                          setKeyboardType: _currentKeyboardType,
+                          listener: onKeyboardPressed),
+                      Gaps.v12,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          KeyboardButton(
+                            inputCharacter: '  ↑ Shift  ',
+                            listener: onSpecialkeyPresseed,
+                            isPressed: (_currentKeyboardType ==
+                                    KeyboardType.motherKey2 ||
+                                _currentKeyboardType == KeyboardType.finalKey2),
+                          ),
+                          Gaps.h12,
+                          KeyboardButton(
+                            inputCharacter: '←',
+                            listener: onSpecialkeyPresseed,
+                          ),
+                          Gaps.h12,
+                          KeyboardButton(
+                            inputCharacter: '  Next  ',
+                            listener: onSpecialkeyPresseed,
+                          ),
+                        ],
                       ),
+                      Spacer(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          NeumorphicButton(
+                            style: NeumorphicStyle(
+                              border: NeumorphicBorder(
+                                color: Colors.black12,
+                                width: 1,
+                              ),
+                              depth: 1,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Sizes.size32,
+                              vertical: Sizes.size12,
+                            ),
+                            onPressed: () => GoRouter.of(context).go('/play'),
+                            child: FaIcon(
+                              FontAwesomeIcons.rotateLeft,
+                              size: Sizes.size24,
+                            ),
+                          ),
+                          NeumorphicButton(
+                            style: NeumorphicStyle(
+                              border: NeumorphicBorder(
+                                color: Colors.black12,
+                                width: 1,
+                              ),
+                              depth: 1,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Sizes.size32,
+                              vertical: Sizes.size12,
+                            ),
+                            onPressed: () => GoRouter.of(context).go('/play'),
+                            child: FaIcon(
+                              FontAwesomeIcons.forward,
+                              size: Sizes.size24,
+                            ),
+                          ),
+                          NeumorphicButton(
+                            style: NeumorphicStyle(
+                              border: NeumorphicBorder(
+                                color: Colors.black12,
+                                width: 1,
+                              ),
+                              depth: 1,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Sizes.size32,
+                              vertical: Sizes.size12,
+                            ),
+                            onPressed: () => GoRouter.of(context).go('/'),
+                            child: FaIcon(
+                              FontAwesomeIcons.arrowLeft,
+                              size: Sizes.size24,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gaps.v20,
                     ],
                   ),
                 ),
@@ -187,62 +220,6 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                 ),
               ],
             ),
-            bottomNavigationBar: BottomAppBar(
-              color: Colors.white.withOpacity(0.5),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Sizes.size32,
-                  vertical: Sizes.size16,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      color: palette.appMainColor,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Sizes.size32,
-                        vertical: Sizes.size12,
-                      ),
-                      onPressed: () => GoRouter.of(context).go('/play'),
-                      child: Text(
-                        'Reset',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    CupertinoButton(
-                      color: palette.appMainColor,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Sizes.size32,
-                        vertical: Sizes.size12,
-                      ),
-                      onPressed: () => GoRouter.of(context).go('/play'),
-                      child: Text(
-                        'Skip',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    CupertinoButton(
-                      color: palette.appMainColor,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Sizes.size32,
-                        vertical: Sizes.size12,
-                      ),
-                      onPressed: () => GoRouter.of(context).go('/play'),
-                      child: Text(
-                        'Back',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ),
         ),
       ),
@@ -253,6 +230,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   void initState() {
     super.initState();
 
+    _currentResult.setInfoFromInitialList(
+      _initialResult.getInitialCharList(),
+    );
     _startOfPlay = DateTime.now();
 
     // Preload ad for the win screen.
@@ -306,5 +286,110 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     if (!mounted) return;
 
     GoRouter.of(context).go('/play/won', extra: {'score': score});
+  }
+
+  bool checkWin() {
+    return _currentResult.resultString == _initialResult.resultString;
+  }
+
+  void onKeyboardPressed(String key) {
+    print("onKeyboardPressed: $key");
+    setState(
+      () {
+        switch (_currentInputStatus) {
+          case InputStatus.step1_mother:
+            _currentResult.addMiddle(_characterIndex, key);
+            _currentInputStatus = InputStatus.step2_final;
+            break;
+          case InputStatus.step2_final:
+            _currentResult.addLast(_characterIndex, key);
+            _currentInputStatus = InputStatus.step1_mother;
+            increaseFocusIndex();
+            break;
+          default:
+            print("No step now");
+        }
+        updateKeyboardType();
+      },
+    );
+    if (checkWin()) _playerWon();
+  }
+
+  void onSpecialkeyPresseed(String key) {
+    if (key == '←') {
+      switch (_currentInputStatus) {
+        case InputStatus.step1_mother:
+          decreaseFocusIndex();
+          break;
+        case InputStatus.step2_final:
+          _currentResult.removeMiddle(_characterIndex);
+          break;
+        case InputStatus.step3_end:
+          _currentResult.removeLast(_characterIndex);
+          break;
+      }
+      updateKeyboardType();
+    } else if (key.contains('Next')) {
+      increaseFocusIndex();
+      updateKeyboardType();
+    } else if (key.contains('Shift')) {
+      shiftAction();
+    }
+    setState(() {});
+    if (checkWin()) _playerWon();
+  }
+
+  void _onFocusTapped(int index) {
+    setState(() {
+      _characterIndex = index;
+      updateKeyboardType();
+    });
+  }
+
+  void increaseFocusIndex() {
+    if (_characterIndex < _currentResult.resultString.length - 1) {
+      _characterIndex += 1;
+      if (_currentResult.resultStringList[_characterIndex].isBlank())
+        _characterIndex += 1;
+    }
+  }
+
+  void decreaseFocusIndex() {
+    if (_characterIndex > 0) {
+      _characterIndex -= 1;
+      if (_currentResult.resultStringList[_characterIndex].isBlank())
+        _characterIndex -= 1;
+    }
+  }
+
+  void updateKeyboardType() {
+    if (_currentResult.resultStringList[_characterIndex].isChosungOnly()) {
+      _currentKeyboardType = KeyboardType.motherKey1;
+      _currentInputStatus = InputStatus.step1_mother;
+    } else if (_currentResult.resultStringList[_characterIndex].last == 0) {
+      _currentKeyboardType = KeyboardType.finalKey1;
+      _currentInputStatus = InputStatus.step2_final;
+    } else {
+      _currentInputStatus = InputStatus.step3_end;
+    }
+  }
+
+  void shiftAction() {
+    switch (_currentKeyboardType) {
+      case KeyboardType.motherKey1:
+        _currentKeyboardType = KeyboardType.motherKey2;
+        break;
+      case KeyboardType.motherKey2:
+        _currentKeyboardType = KeyboardType.motherKey1;
+        break;
+      case KeyboardType.finalKey1:
+        _currentKeyboardType = KeyboardType.finalKey2;
+        break;
+      case KeyboardType.finalKey2:
+        _currentKeyboardType = KeyboardType.finalKey1;
+        break;
+      default:
+        print("Error");
+    }
   }
 }
