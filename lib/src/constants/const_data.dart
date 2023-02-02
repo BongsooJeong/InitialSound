@@ -1,99 +1,85 @@
 import 'package:flutter/material.dart';
 
 enum KeyboardType {
-  initialKey,
-  motherKey1,
-  motherKey2,
-  finalKey1,
-  finalKey2,
+  keyboardLayout1,
+  keyboardLayout2,
 }
 
 enum InputStatus {
-  step1_mother,
-  step2_final,
-  step3_end,
+  initialOnly,
+  MotherCharAdded,
+  AllDone,
 }
 
-const InitialCharacters = [
-  "ㄱ",
-  "ㄲ",
-  "ㄴ",
-  "ㄷ",
-  "ㄸ",
-  "ㄹ",
-  "ㅁ",
-  "ㅂ",
-  "ㅃ",
-  "ㅅ",
-  "ㅆ",
-  "ㅇ",
-  "ㅈ",
-  "ㅉ",
-  "ㅊ",
-  "ㅋ",
-  "ㅌ",
-  "ㅍ",
-  "ㅎ"
+enum QuizCategory {
+  movie,
+  drama,
+  kpop,
+  proverb,
+}
+
+const KeyboardLayout1 = [
+  [
+    "ㅂ",
+    "ㅈ",
+    "ㄷ",
+    "ㄱ",
+    "ㅅ",
+    "ㅗ",
+    "ㅐ",
+    "ㅔ",
+  ],
+  [
+    "ㅁ",
+    "ㄴ",
+    "ㅇ",
+    "ㄹ",
+    "ㅎ",
+    "ㅓ",
+    "ㅏ",
+    "ㅣ",
+  ],
+  [
+    "ㅋ",
+    "ㅌ",
+    "ㅊ",
+    "ㅍ",
+    "ㅜ",
+    "ㅡ",
+    "ㅛ",
+    "ㅕ",
+  ],
 ];
 
-const MotherCharacters1 = [
-  "ㅏ",
-  "ㅑ",
-  "ㅓ",
-  "ㅕ",
-  "ㅗ",
-  "ㅛ",
-  "ㅜ",
-  "ㅠ",
-  "ㅡ",
-  "ㅣ",
-];
-
-const MotherCharacters2 = [
-  "ㅐ",
-  "ㅒ",
-  "ㅔ",
-  "ㅖ",
-  "ㅘ",
-  "ㅙ",
-  "ㅚ",
-  "ㅝ",
-  "ㅞ",
-  "ㅟ",
-  "ㅢ",
-];
-
-const FinalCharacters1 = [
-  "ㄱ",
-  "ㄴ",
-  "ㄷ",
-  "ㄹ",
-  "ㅁ",
-  "ㅂ",
-  "ㅅ",
-  "ㅇ",
-  "ㅈ",
-  "ㅊ",
-  "ㅋ",
-  "ㅌ",
-  "ㅍ",
-  "ㅎ",
-];
-
-const FinalCharacters2 = [
-  "ㄲ",
-  "ㄳ",
-  "ㄵ",
-  "ㄶ",
-  "ㄺ",
-  "ㄻ",
-  "ㄼ",
-  "ㄽ",
-  "ㄾ",
-  "ㄿ",
-  "ㅀ",
-  "ㅄ",
-  "ㅆ",
+const KeyboardLayout2 = [
+  [
+    "ㅃ",
+    "ㅉ",
+    "ㄸ",
+    "ㄲ",
+    "ㅆ",
+    "ㄳ",
+    "ㄵ",
+    "ㄶ",
+    "ㄺ",
+    "ㄻ",
+    "ㄼ",
+    "ㄽ",
+    "ㄾ",
+    "ㄿ",
+    "ㅀ",
+    "ㅄ",
+    "ㅑ",
+    "ㅒ",
+    "ㅖ",
+    "ㅘ",
+    "ㅙ",
+    "ㅚ",
+    "ㅝ",
+    "ㅞ",
+    "ㅟ",
+    "ㅢ",
+  ],
 ];
 
 const Chosung = [

@@ -15,10 +15,12 @@ import '../style/responsive_screen.dart';
 
 class WinGameScreen extends StatelessWidget {
   final Score score;
+  final int screenNumber;
 
   const WinGameScreen({
     super.key,
     required this.score,
+    required this.screenNumber,
   });
 
   @override
@@ -63,7 +65,9 @@ class WinGameScreen extends StatelessWidget {
         ),
         rectangularMenuArea: ElevatedButton(
           onPressed: () {
-            GoRouter.of(context).go('/play');
+            GoRouter.of(context).go(
+              (screenNumber == 1) ? 'play/play2' : '/play',
+            );
           },
           child: const Text('Continue'),
         ),

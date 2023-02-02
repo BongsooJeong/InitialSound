@@ -6,12 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../audio/audio_controller.dart';
-import '../audio/sounds.dart';
 import '../player_progress/player_progress.dart';
 import '../style/palette.dart';
 import '../style/responsive_screen.dart';
-import 'levels.dart';
 
 class LevelSelectionScreen extends StatelessWidget {
   const LevelSelectionScreen({super.key});
@@ -40,7 +37,7 @@ class LevelSelectionScreen extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  for (final level in gameLevels)
+/*                   for (final level in gameLevels)
                     ListTile(
                       enabled: playerProgress.highestLevelReached >=
                           level.number - 1,
@@ -53,7 +50,7 @@ class LevelSelectionScreen extends StatelessWidget {
                       },
                       leading: Text(level.number.toString()),
                       title: Text('Level #${level.number}'),
-                    )
+                    ) */
                 ],
               ),
             ),

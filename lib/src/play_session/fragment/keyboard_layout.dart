@@ -6,34 +6,16 @@ import '../../constants/sizes.dart';
 class KeyboardLayout extends StatelessWidget {
   const KeyboardLayout({
     super.key,
-    required KeyboardType setKeyboardType,
+    required KeyboardType keyboardType,
     required void Function(String) listener,
   })  : _listener = listener,
-        _setKeyboardType = setKeyboardType;
+        _setKeyboardType = keyboardType;
 
-  final KeyboardType _setKeyboardType;
   final void Function(String) _listener;
+  final KeyboardType _setKeyboardType;
 
-  List<Widget> getKeys() {
+  List<Widget> getKeys(List<String> inputList) {
     List<Widget> resultList = <Widget>[];
-    var inputList;
-
-    switch (_setKeyboardType) {
-      case KeyboardType.motherKey1:
-        inputList = MotherCharacters1;
-        break;
-      case KeyboardType.motherKey2:
-        inputList = MotherCharacters2;
-        break;
-      case KeyboardType.finalKey1:
-        inputList = FinalCharacters1;
-        break;
-      case KeyboardType.finalKey2:
-        inputList = FinalCharacters2;
-        break;
-      case KeyboardType.initialKey:
-        assert(false);
-    }
     for (var eachKey in inputList) {
       resultList.add(
         KeyboardButton(
@@ -45,13 +27,28 @@ class KeyboardLayout extends StatelessWidget {
     return resultList;
   }
 
+  List<Widget> getWraps() {
+    var inputList = (_setKeyboardType == KeyboardType.keyboardLayout1)
+        ? KeyboardLayout1
+        : KeyboardLayout2;
+    List<Widget> resultList = <Widget>[];
+    for (var rowList in inputList) {
+      resultList.add(
+        Wrap(
+          spacing: Sizes.size7,
+          runSpacing: Sizes.size7,
+          alignment: WrapAlignment.center,
+          children: getKeys(rowList),
+        ),
+      );
+    }
+    return resultList;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: Sizes.size10,
-      runSpacing: Sizes.size10,
-      alignment: WrapAlignment.center,
-      children: getKeys(),
+    return Column(
+      children: getWraps(),
     );
   }
 }

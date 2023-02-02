@@ -22,8 +22,8 @@ import 'src/crashlytics/crashlytics.dart';
 import 'src/games_services/games_services.dart';
 import 'src/games_services/score.dart';
 import 'src/in_app_purchase/in_app_purchase.dart';
-import 'src/level_selection/levels.dart';
 import 'src/main_menu/main_menu_screen.dart';
+import 'src/play_session/model/game_info.dart';
 import 'src/play_session/play_session_screen.dart';
 import 'src/player_progress/persistence/local_storage_player_progress_persistence.dart';
 import 'src/player_progress/persistence/player_progress_persistence.dart';
@@ -80,6 +80,8 @@ void guardedMain() {
     SystemUiMode.edgeToEdge,
   );
 
+  GameInfo();
+
   // TODO: When ready, uncomment the following lines to enable integrations.
   //       Read the README for more info on each integration.
 
@@ -133,12 +135,10 @@ class MyApp extends StatelessWidget {
           GoRoute(
               path: 'play',
               pageBuilder: (context, state) {
-                final levelNumber = 1;
-                final level =
-                    gameLevels.singleWhere((e) => e.number == levelNumber);
                 return buildMyTransition<void>(
                   child: PlaySessionScreen(
-                    level,
+                    level: GameInfo.getRandomQuiz(),
+                    screenNumber: 1,
                     key: const Key('play session'),
                   ),
                   color: context.watch<Palette>().backgroundPlaySession,
@@ -151,14 +151,26 @@ class MyApp extends StatelessWidget {
                     ), */
               routes: [
                 GoRoute(
-                  path: 'session/:level',
+                  path: 'play2',
                   pageBuilder: (context, state) {
-                    final levelNumber = int.parse(state.params['level']!);
-                    final level =
-                        gameLevels.singleWhere((e) => e.number == levelNumber);
                     return buildMyTransition<void>(
                       child: PlaySessionScreen(
-                        level,
+                        screenNumber: 2,
+                        level: GameInfo.getRandomQuiz(),
+                        key: const Key('play session'),
+                      ),
+                      color: context.watch<Palette>().backgroundPlaySession,
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'session/:level',
+                  pageBuilder: (context, state) {
+                    final level = GameInfo.getRandomQuiz();
+                    return buildMyTransition<void>(
+                      child: PlaySessionScreen(
+                        screenNumber: 1,
+                        level: level,
                         key: const Key('play session'),
                       ),
                       color: context.watch<Palette>().backgroundPlaySession,
@@ -170,9 +182,11 @@ class MyApp extends StatelessWidget {
                   pageBuilder: (context, state) {
                     final map = state.extra! as Map<String, dynamic>;
                     final score = map['score'] as Score;
+                    final screenNumber = map['screenNumber'] as int;
 
                     return buildMyTransition<void>(
                       child: WinGameScreen(
+                        screenNumber: screenNumber,
                         score: score,
                         key: const Key('win game'),
                       ),

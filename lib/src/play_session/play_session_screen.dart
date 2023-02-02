@@ -26,12 +26,18 @@ import '../level_selection/levels.dart';
 import '../player_progress/player_progress.dart';
 import '../style/confetti.dart';
 import 'fragment/quiz_info_fragment.dart';
+import 'model/game_info.dart';
 import 'widget/keyboard_button.dart';
 
 class PlaySessionScreen extends StatefulWidget {
   final GameLevel level;
+  final int screenNumber;
 
-  const PlaySessionScreen(this.level, {super.key});
+  const PlaySessionScreen({
+    required this.level,
+    required this.screenNumber,
+    super.key,
+  });
 
   @override
   State<PlaySessionScreen> createState() => _PlaySessionScreenState();
@@ -45,10 +51,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   int _characterIndex = 0;
   bool _duringCelebration = false;
   late DateTime _startOfPlay;
-  InputStatus _currentInputStatus = InputStatus.step1_mother;
-  KeyboardType _currentKeyboardType = KeyboardType.motherKey1;
+  KeyboardType _currentKeyboardType = KeyboardType.keyboardLayout1;
 
-  StringInfo _initialResult = StringInfo().setInfoFromString("쇼생크 탈출");
+  StringInfo _initialResult = StringInfo();
   StringInfo _currentResult = StringInfo();
 
   @override
@@ -57,7 +62,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       providers: [
         ChangeNotifierProvider(
           create: (context) => LevelState(
-            goal: widget.level.difficulty,
+//            goal: widget.level.difficulty,
             onWin: _playerWon,
           ),
         ),
@@ -72,7 +77,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
             ),
           ),
           child: Scaffold(
-            backgroundColor: Colors.grey.shade300.withOpacity(0.95),
+            backgroundColor: Colors.grey.shade300.withOpacity(
+              getOpacity(),
+            ),
             body: Stack(
               children: [
                 Padding(
@@ -104,8 +111,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                       Gaps.v5,
                       QuizInfoFragment(
                         characterIndex: _characterIndex,
-                        hintList: _currentResult.getStringAsArray(),
+                        hintList: _currentResult,
                         callBack: _onFocusTapped,
+                        category: getCategory(),
                       ),
                       Spacer(),
 /*                       Consumer<LevelState>(
@@ -119,7 +127,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                         ),
                       ), */
                       KeyboardLayout(
-                          setKeyboardType: _currentKeyboardType,
+                          keyboardType: _currentKeyboardType,
                           listener: onKeyboardPressed),
                       Gaps.v12,
                       Row(
@@ -129,8 +137,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                             inputCharacter: '  ↑ Shift  ',
                             listener: onSpecialkeyPresseed,
                             isPressed: (_currentKeyboardType ==
-                                    KeyboardType.motherKey2 ||
-                                _currentKeyboardType == KeyboardType.finalKey2),
+                                KeyboardType.keyboardLayout2),
                           ),
                           Gaps.h12,
                           KeyboardButton(
@@ -160,7 +167,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                               horizontal: Sizes.size32,
                               vertical: Sizes.size12,
                             ),
-                            onPressed: () => GoRouter.of(context).go('/play'),
+                            onPressed: restartStage,
                             child: FaIcon(
                               FontAwesomeIcons.rotateLeft,
                               size: Sizes.size24,
@@ -178,7 +185,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                               horizontal: Sizes.size32,
                               vertical: Sizes.size12,
                             ),
-                            onPressed: () => GoRouter.of(context).go('/play'),
+                            onPressed: () => _onNextTap(),
                             child: FaIcon(
                               FontAwesomeIcons.forward,
                               size: Sizes.size24,
@@ -230,11 +237,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   void initState() {
     super.initState();
 
-    _currentResult.setInfoFromInitialList(
-      _initialResult.getInitialCharList(),
-    );
-    _startOfPlay = DateTime.now();
-
+    restartStage();
     // Preload ad for the win screen.
     final adsRemoved =
         context.read<InAppPurchaseController?>()?.adRemoval.active ?? false;
@@ -244,12 +247,25 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     }
   }
 
+  void restartStage() {
+    setState(() {
+      _initialResult = StringInfo().setInfoFromString(
+        GameInfo.quizInfo[widget.level.number].contents,
+      );
+      _currentResult.setInfoFromInitialList(
+        _initialResult.getInitialCharList(),
+      );
+      _startOfPlay = DateTime.now();
+      _characterIndex = _initialResult.getHangulStartIndex();
+    });
+  }
+
   Future<void> _playerWon() async {
     _log.info('Level ${widget.level.number} won');
 
     final score = Score(
       widget.level.number,
-      widget.level.difficulty,
+      1, //widget.level.difficulty,
       DateTime.now().difference(_startOfPlay),
     );
 
@@ -285,7 +301,16 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     await Future<void>.delayed(_celebrationDuration);
     if (!mounted) return;
 
-    GoRouter.of(context).go('/play/won', extra: {'score': score});
+    GameInfo.quizInfo[widget.level.number].isCleared = true;
+
+    //GoRouter.of(context).go('/play/won', extra: {'score': score});
+    GoRouter.of(context).go(
+      '/play/won',
+      extra: {
+        'score': score,
+        'screenNumber': widget.screenNumber,
+      },
+    );
   }
 
   bool checkWin() {
@@ -296,20 +321,12 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     print("onKeyboardPressed: $key");
     setState(
       () {
-        switch (_currentInputStatus) {
-          case InputStatus.step1_mother:
-            _currentResult.addMiddle(_characterIndex, key);
-            _currentInputStatus = InputStatus.step2_final;
-            break;
-          case InputStatus.step2_final:
-            _currentResult.addLast(_characterIndex, key);
-            _currentInputStatus = InputStatus.step1_mother;
-            increaseFocusIndex();
-            break;
-          default:
-            print("No step now");
+        if (isJungsungChar(key)) {
+          _currentResult.addMiddle(_characterIndex, key);
+        } else if (getCurrentInputStatus() != InputStatus.initialOnly) {
+          _currentResult.addLast(_characterIndex, key);
+          increaseFocusIndex();
         }
-        updateKeyboardType();
       },
     );
     if (checkWin()) _playerWon();
@@ -317,23 +334,24 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
 
   void onSpecialkeyPresseed(String key) {
     if (key == '←') {
-      switch (_currentInputStatus) {
-        case InputStatus.step1_mother:
+      switch (getCurrentInputStatus()) {
+        case InputStatus.initialOnly:
           decreaseFocusIndex();
           break;
-        case InputStatus.step2_final:
+        case InputStatus.MotherCharAdded:
           _currentResult.removeMiddle(_characterIndex);
           break;
-        case InputStatus.step3_end:
+        case InputStatus.AllDone:
           _currentResult.removeLast(_characterIndex);
           break;
       }
-      updateKeyboardType();
     } else if (key.contains('Next')) {
       increaseFocusIndex();
-      updateKeyboardType();
     } else if (key.contains('Shift')) {
-      shiftAction();
+      _currentKeyboardType =
+          (KeyboardType.keyboardLayout1 == _currentKeyboardType)
+              ? KeyboardType.keyboardLayout2
+              : KeyboardType.keyboardLayout1;
     }
     setState(() {});
     if (checkWin()) _playerWon();
@@ -342,54 +360,54 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   void _onFocusTapped(int index) {
     setState(() {
       _characterIndex = index;
-      updateKeyboardType();
     });
   }
 
   void increaseFocusIndex() {
-    if (_characterIndex < _currentResult.resultString.length - 1) {
-      _characterIndex += 1;
-      if (_currentResult.resultStringList[_characterIndex].isBlank())
-        _characterIndex += 1;
+    if (_characterIndex < _initialResult.getHangulEndIndex()) {
+      _characterIndex++;
+      while (!_currentResult.resultStringList[_characterIndex].isHangul)
+        _characterIndex++;
     }
   }
 
   void decreaseFocusIndex() {
-    if (_characterIndex > 0) {
-      _characterIndex -= 1;
-      if (_currentResult.resultStringList[_characterIndex].isBlank())
-        _characterIndex -= 1;
-    }
+    if (_characterIndex > _initialResult.getHangulStartIndex())
+      _characterIndex--;
+    while (!_currentResult.resultStringList[_characterIndex].isHangul)
+      _characterIndex--;
   }
 
-  void updateKeyboardType() {
-    if (_currentResult.resultStringList[_characterIndex].isChosungOnly()) {
-      _currentKeyboardType = KeyboardType.motherKey1;
-      _currentInputStatus = InputStatus.step1_mother;
-    } else if (_currentResult.resultStringList[_characterIndex].last == 0) {
-      _currentKeyboardType = KeyboardType.finalKey1;
-      _currentInputStatus = InputStatus.step2_final;
-    } else {
-      _currentInputStatus = InputStatus.step3_end;
-    }
+  double getOpacity() {
+    double baseValue = 0.95;
+    int fullLength = _currentResult.resultString.length;
+    double moveRange = 0.2;
+
+    return baseValue - (moveRange * (_characterIndex / fullLength));
   }
 
-  void shiftAction() {
-    switch (_currentKeyboardType) {
-      case KeyboardType.motherKey1:
-        _currentKeyboardType = KeyboardType.motherKey2;
-        break;
-      case KeyboardType.motherKey2:
-        _currentKeyboardType = KeyboardType.motherKey1;
-        break;
-      case KeyboardType.finalKey1:
-        _currentKeyboardType = KeyboardType.finalKey2;
-        break;
-      case KeyboardType.finalKey2:
-        _currentKeyboardType = KeyboardType.finalKey1;
-        break;
-      default:
-        print("Error");
+  bool isJungsungChar(String input) {
+    return Jungsung.indexOf(input) >= 0;
+  }
+
+  InputStatus getCurrentInputStatus() {
+    if (_currentResult.resultStringList[_characterIndex].middle >= 0) {
+      if (_currentResult.resultStringList[_characterIndex].last > 0) {
+        return InputStatus.AllDone;
+      }
+      return InputStatus.MotherCharAdded;
     }
+    return InputStatus.initialOnly;
+  }
+
+  QuizCategory getCategory() {
+    return GameInfo.quizInfo[widget.level.number].category;
+  }
+
+  void _onNextTap() {
+    GoRouter.of(context).pushReplacement(
+      (widget.screenNumber == 1) ? '/play/play2' : '/play',
+    );
+    restartStage();
   }
 }

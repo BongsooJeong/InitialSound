@@ -1,4 +1,5 @@
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:game_template/src/play_session/model/string_info.dart';
 
 import '../../constants/gaps.dart';
 import '../../constants/sizes.dart';
@@ -10,15 +11,18 @@ class QuizInfoFragment extends StatelessWidget {
   const QuizInfoFragment({
     super.key,
     required int characterIndex,
-    required List<String> hintList,
+    required StringInfo hintList,
     required void Function(int) callBack,
+    required QuizCategory category,
   })  : _characterIndex = characterIndex,
         _hintList = hintList,
-        _callBack = callBack;
+        _callBack = callBack,
+        _category = category;
 
   final int _characterIndex;
-  final _hintList;
+  final StringInfo _hintList;
   final void Function(int) _callBack;
+  final QuizCategory _category;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +63,7 @@ class QuizInfoFragment extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.movie_creation_rounded,
+                  getCategoryIcon(),
                   color: GameDarkColor,
                   size: Sizes.size32,
                 ),
@@ -73,7 +77,7 @@ class QuizInfoFragment extends StatelessWidget {
                 ),
                 Gaps.h3,
                 Text(
-                  '영화제목',
+                  getCategoryTitle(),
                   style: TextStyle(
                     fontSize: Sizes.size24,
                     color: GameDarkColor,
@@ -85,23 +89,81 @@ class QuizInfoFragment extends StatelessWidget {
           ),
           Gaps.v16,
           Wrap(
-            spacing: Sizes.size12,
+            spacing: Sizes.size4,
             alignment: WrapAlignment.start,
-            children: [
-              for (int i = 0; i < _hintList.length; i++)
-                (_hintList[i] != ' ')
-                    ? GestureDetector(
-                        onTap: () => _callBack(i),
-                        child: ResultCharacter(
-                          initial: _hintList[i],
-                          isFocused: (_characterIndex == i),
-                        ),
-                      )
-                    : Gaps.h14,
-            ],
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: hintWidgets(),
           ),
         ],
       ),
     );
+  }
+
+  String getCategoryTitle() {
+    switch (_category) {
+      case QuizCategory.drama:
+        return '드라마';
+      case QuizCategory.kpop:
+        return 'K팝';
+      case QuizCategory.movie:
+        return '영화';
+      case QuizCategory.proverb:
+        return '속담';
+    }
+  }
+
+  IconData getCategoryIcon() {
+    switch (_category) {
+      case QuizCategory.drama:
+        return Icons.tv_rounded;
+      case QuizCategory.kpop:
+        return Icons.library_music_rounded;
+      case QuizCategory.movie:
+        return Icons.movie_creation_rounded;
+      case QuizCategory.proverb:
+        return Icons.chat_rounded;
+    }
+  }
+
+  List<Widget> hintWidgets() {
+    List<Widget> hintWidgetList = [];
+    var textSize = Sizes.size24;
+    var circleSize = Sizes.size12;
+
+    if (_hintList.resultStringList.length > 50) {
+      textSize = Sizes.size20;
+      circleSize = Sizes.size8;
+    }
+
+    for (var eachChar in _hintList.resultStringList) {
+      if (eachChar.isBlank) {
+        hintWidgetList.add(Gaps.h16);
+      } else if (!eachChar.isHangul) {
+        hintWidgetList.add(
+          Text(
+            eachChar.contents,
+            style: TextStyle(
+              fontSize: textSize,
+              color: GameDarkColor,
+            ),
+          ),
+        );
+      } else {
+        hintWidgetList.add(
+          GestureDetector(
+            onTap: () => _callBack(
+              _hintList.resultStringList.indexOf(eachChar),
+            ),
+            child: ResultCharacter(
+              initial: eachChar.getDisplayChar(),
+              isFocused: (_characterIndex ==
+                  _hintList.resultStringList.indexOf(eachChar)),
+              circleSize: circleSize,
+            ),
+          ),
+        );
+      }
+    }
+    return hintWidgetList;
   }
 }

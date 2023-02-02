@@ -31,10 +31,10 @@ class KeyboardButton extends StatelessWidget {
           color: Colors.black12,
           width: 1,
         ),
-        depth: _isPressed ? -4 : 4,
+        depth: _isPressed ? -7 : 4,
       ),
       padding: const EdgeInsets.symmetric(
-        horizontal: Sizes.size10,
+        horizontal: Sizes.size8,
         vertical: Sizes.size3,
       ),
       child: (inputCharacter == '←')
@@ -42,13 +42,14 @@ class KeyboardButton extends StatelessWidget {
               padding: const EdgeInsets.all(Sizes.size3),
               child: Icon(
                 Icons.backspace_rounded,
-                size: Sizes.size28,
+                size: Sizes.size24,
               ),
             )
           : Text(
               inputCharacter,
               style: TextStyle(
-                fontSize: Sizes.size24,
+                fontSize: Sizes.size20,
+                fontWeight: _isPressed ? FontWeight.bold : FontWeight.normal,
                 color: GameDarkColor,
               ),
             ),

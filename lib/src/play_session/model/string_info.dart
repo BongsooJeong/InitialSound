@@ -2,6 +2,8 @@ import 'dart:core';
 
 import 'package:game_template/src/constants/const_data.dart';
 
+import 'char_info.dart';
+
 class StringInfo {
   String resultString = "";
   List<CharInfo> resultStringList = [];
@@ -39,9 +41,15 @@ class StringInfo {
   List<String> getInitialCharList() {
     List<String> initialList = [];
     for (var eachChar in resultStringList) {
-      initialList.add(
-        (eachChar.initial >= 0) ? Chosung[eachChar.initial] : ' ',
-      );
+      if (eachChar.isBlank) {
+        initialList.add(" ");
+      } else if (!eachChar.isHangul) {
+        initialList.add(eachChar.contents);
+      } else {
+        initialList.add(
+          (eachChar.initial >= 0) ? Chosung[eachChar.initial] : ' ',
+        );
+      }
     }
     return initialList;
   }
@@ -77,42 +85,16 @@ class StringInfo {
     setInfoFromList(resultStringList);
     return this;
   }
-}
 
-class CharInfo {
-  int initial = -1;
-  int middle = -1;
-  int last = 0;
-
-  CharInfo setInfoFromString(String input) {
-    if (input.isEmpty || input == ' ') {
-      initial = middle = last = -1;
-    } else if (input.codeUnitAt(0) < 44032) {
-      initial = Chosung.indexOf(input);
-    } else {
-      int uniBase = input.codeUnitAt(0) - 44032;
-
-      initial = uniBase / 28 ~/ 21;
-      middle = (uniBase / 28 % 21).toInt();
-      last = (uniBase % 28).toInt();
-    }
-    return this;
+  int getHangulStartIndex() {
+    int index = 0;
+    while (!resultStringList[index].isHangul) index++;
+    return index;
   }
 
-  bool isBlank() {
-    return (initial + middle + last <= 0);
-  }
-
-  bool isChosungOnly() {
-    return (middle == -1);
-  }
-
-  String getDisplayChar() {
-    if (isBlank()) {
-      return " ";
-    } else if (middle == -1) {
-      return Chosung[initial];
-    }
-    return String.fromCharCode((initial * 21 + middle) * 28 + last + 44032);
+  int getHangulEndIndex() {
+    int index = resultStringList.length - 1;
+    while (!resultStringList[index].isHangul) index--;
+    return index;
   }
 }
