@@ -130,7 +130,7 @@ class QuizInfoFragment extends StatelessWidget {
     var textSize = Sizes.size24;
     var circleSize = Sizes.size12;
 
-    if (_hintList.resultStringList.length > 50) {
+    if (_hintList.resultStringList.length > 40) {
       textSize = Sizes.size20;
       circleSize = Sizes.size8;
     }

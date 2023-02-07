@@ -3,12 +3,14 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:game_template/src/settings/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
 import '../games_services/games_services.dart';
+import '../play_session/model/game_info.dart';
+import '../play_session/play_session_screen.dart';
 import '../settings/settings.dart';
 import '../style/palette.dart';
 import '../style/responsive_screen.dart';
@@ -112,7 +114,14 @@ class MainMenuScreen extends StatelessWidget {
                   ),
                   onPressed: () {
                     audioController.playSfx(SfxType.buttonTap);
-                    GoRouter.of(context).go('/play');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PlaySessionScreen(
+                          level: GameInfo.getRandomQuiz(),
+                        ),
+                      ),
+                    );
                   },
                   child: const Text(
                     '시작하기',
@@ -163,7 +172,12 @@ class MainMenuScreen extends StatelessWidget {
                   ),
                   onPressed: () {
                     audioController.playSfx(SfxType.buttonTap);
-                    GoRouter.of(context).go('/settings');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SettingsScreen(),
+                      ),
+                    );
                   },
                   child: Text(
                     '설정하기',

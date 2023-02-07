@@ -8,14 +8,15 @@ import 'package:game_template/src/play_session/model/quiz_info.dart';
 class GameInfo {
   GameInfo() {
     int index = 1;
-    for (int i = 0; i < gameRawData.length; i += 2) {
+    for (int i = 0; i < gameRawData.length; i += 3) {
       quizInfo.add(
         QuizInfo(
             index: index++,
+            imageId: gameRawData[i],
             category: QuizCategory.values.byName(
-              gameRawData[i],
+              gameRawData[i + 1],
             ),
-            contents: gameRawData[i + 1]),
+            contents: gameRawData[i + 2]),
         // todo : need to add stage clear info and image
       );
     }

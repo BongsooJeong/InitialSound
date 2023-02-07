@@ -8,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:game_template/src/constants/const_data.dart';
 import 'package:game_template/src/play_session/fragment/keyboard_layout.dart';
 import 'package:game_template/src/play_session/model/string_info.dart';
-import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart' hide Level;
 import 'package:provider/provider.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
@@ -31,11 +30,9 @@ import 'widget/keyboard_button.dart';
 
 class PlaySessionScreen extends StatefulWidget {
   final GameLevel level;
-  final int screenNumber;
 
   const PlaySessionScreen({
     required this.level,
-    required this.screenNumber,
     super.key,
   });
 
@@ -45,11 +42,13 @@ class PlaySessionScreen extends StatefulWidget {
 
 class _PlaySessionScreenState extends State<PlaySessionScreen> {
   static final _log = Logger('PlaySessionScreen');
-  static const _celebrationDuration = Duration(milliseconds: 2000);
+  static const _celebrationDuration = Duration(milliseconds: 5000);
   static const _preCelebrationDuration = Duration(milliseconds: 500);
+  static const _backgroundPreviewDuration = Duration(milliseconds: 500);
 
   int _characterIndex = 0;
   bool _duringCelebration = false;
+  bool _duringPreview = false;
   late DateTime _startOfPlay;
   KeyboardType _currentKeyboardType = KeyboardType.keyboardLayout1;
 
@@ -69,20 +68,31 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       ],
       child: IgnorePointer(
         ignoring: _duringCelebration,
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage('assets/images/gamebg/1.jpg'),
-            ),
-          ),
-          child: Scaffold(
-            backgroundColor: Colors.grey.shade300.withOpacity(
-              getOpacity(),
-            ),
-            body: Stack(
-              children: [
-                Padding(
+        child: Scaffold(
+          body: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                ),
+                child: AnimatedOpacity(
+                  opacity: _duringCelebration ? 1.0 : getOpacity(),
+                  duration: Duration(
+                    seconds: 1,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: getBackgroundImage(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: !_duringCelebration,
+                child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: Sizes.size20,
                     vertical: Sizes.size40,
@@ -116,7 +126,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                         category: getCategory(),
                       ),
                       Spacer(),
-/*                       Consumer<LevelState>(
+                      /*                       Consumer<LevelState>(
                         builder: (context, levelState, child) => Slider(
                           label: 'Level Progress',
                           autofocus: true,
@@ -203,7 +213,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                               horizontal: Sizes.size32,
                               vertical: Sizes.size12,
                             ),
-                            onPressed: () => GoRouter.of(context).go('/'),
+                            onPressed: () => Navigator.of(context).pop(),
                             child: FaIcon(
                               FontAwesomeIcons.arrowLeft,
                               size: Sizes.size24,
@@ -215,18 +225,18 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                     ],
                   ),
                 ),
-                SizedBox.expand(
-                  child: Visibility(
-                    visible: _duringCelebration,
-                    child: IgnorePointer(
-                      child: Confetti(
-                        isStopped: !_duringCelebration,
-                      ),
+              ),
+              SizedBox.expand(
+                child: Visibility(
+                  visible: _duringCelebration,
+                  child: IgnorePointer(
+                    child: Confetti(
+                      isStopped: !_duringCelebration,
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -245,6 +255,18 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       final adsController = context.read<AdsController?>();
       adsController?.preloadAd();
     }
+
+    showPreview();
+  }
+
+  Future<void> showPreview() async {
+    setState(() {
+      _duringPreview = true;
+    });
+    await Future<void>.delayed(_backgroundPreviewDuration);
+    setState(() {
+      _duringPreview = false;
+    });
   }
 
   void restartStage() {
@@ -302,15 +324,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     if (!mounted) return;
 
     GameInfo.quizInfo[widget.level.number].isCleared = true;
-
-    //GoRouter.of(context).go('/play/won', extra: {'score': score});
-    GoRouter.of(context).go(
-      '/play/won',
-      extra: {
-        'score': score,
-        'screenNumber': widget.screenNumber,
-      },
-    );
+    _onNextTap();
   }
 
   bool checkWin() {
@@ -379,11 +393,13 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   }
 
   double getOpacity() {
-    double baseValue = 0.95;
-    int fullLength = _currentResult.resultString.length;
-    double moveRange = 0.2;
+    if (_duringPreview) return 0.5;
 
-    return baseValue - (moveRange * (_characterIndex / fullLength));
+    double baseValue = 0.05;
+    int fullLength = _currentResult.resultString.length;
+    double moveRange = 0.25;
+
+    return baseValue + (moveRange * (_characterIndex / fullLength));
   }
 
   bool isJungsungChar(String input) {
@@ -405,9 +421,19 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   }
 
   void _onNextTap() {
-    GoRouter.of(context).pushReplacement(
-      (widget.screenNumber == 1) ? '/play/play2' : '/play',
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlaySessionScreen(
+          level: GameInfo.getRandomQuiz(),
+        ),
+      ),
     );
-    restartStage();
+  }
+
+  AssetImage getBackgroundImage() {
+    var imageName = GameInfo.quizInfo[widget.level.number].imageId;
+    var imagePath = "assets/images/gamebg/$imageName.jpg";
+    return AssetImage(imagePath);
   }
 }

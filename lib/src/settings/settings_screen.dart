@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../in_app_purchase/in_app_purchase.dart';
@@ -103,7 +102,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         rectangularMenuArea: ElevatedButton(
           onPressed: () {
-            GoRouter.of(context).pop();
+            Navigator.of(context).pop();
           },
           child: const Text('Back'),
         ),

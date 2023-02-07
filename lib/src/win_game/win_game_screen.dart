@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../ads/ads_controller.dart';
@@ -15,12 +14,10 @@ import '../style/responsive_screen.dart';
 
 class WinGameScreen extends StatelessWidget {
   final Score score;
-  final int screenNumber;
 
   const WinGameScreen({
     super.key,
     required this.score,
-    required this.screenNumber,
   });
 
   @override
@@ -65,9 +62,7 @@ class WinGameScreen extends StatelessWidget {
         ),
         rectangularMenuArea: ElevatedButton(
           onPressed: () {
-            GoRouter.of(context).go(
-              (screenNumber == 1) ? 'play/play2' : '/play',
-            );
+            Navigator.of(context).pop();
           },
           child: const Text('Continue'),
         ),
