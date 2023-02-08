@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:game_template/src/constants/const_data.dart';
 import 'package:game_template/src/constants/game_data.dart';
 import 'package:game_template/src/level_selection/levels.dart';
-import 'package:game_template/src/play_session/model/quiz_info.dart';
+import 'package:game_template/src/player_progress/quiz_info.dart';
 
 class GameInfo {
   GameInfo() {
@@ -23,7 +23,7 @@ class GameInfo {
   }
   static List<QuizInfo> quizInfo = [];
 
-  static List<QuizInfo> getUnclearedList() {
+  static List<QuizInfo> getUnclearedQuizList() {
     List<QuizInfo> result = [];
     for (var quiz in quizInfo) {
       if (!quiz.isCleared) {
@@ -34,7 +34,7 @@ class GameInfo {
   }
 
   static GameLevel getRandomQuiz() {
-    final unclearedStage = GameInfo.getUnclearedList();
+    final unclearedStage = GameInfo.getUnclearedQuizList();
     final randomStage = Random().nextInt(unclearedStage.length);
     return GameLevel(number: unclearedStage[randomStage].index);
   }

@@ -3,13 +3,14 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:game_template/src/collection/collection_screen.dart';
 import 'package:game_template/src/settings/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
+import '../constants/sizes.dart';
 import '../games_services/games_services.dart';
-import '../play_session/model/game_info.dart';
 import '../play_session/play_session_screen.dart';
 import '../settings/settings.dart';
 import '../style/palette.dart';
@@ -87,127 +88,173 @@ class MainMenuScreen extends StatelessWidget {
               ),
             ],
           ),
-          rectangularMenuArea: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 15,
-                      offset: Offset(7.0, 7.0),
-                      color: Colors.black,
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 5,
-                      horizontal: 60,
-                    ),
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    side: BorderSide(
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                  onPressed: () {
-                    audioController.playSfx(SfxType.buttonTap);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlaySessionScreen(
-                          level: GameInfo.getRandomQuiz(),
-                        ),
+          rectangularMenuArea: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Sizes.size72,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 15,
+                        offset: Offset(7.0, 7.0),
+                        color: Colors.black,
                       ),
-                    );
-                  },
-                  child: const Text(
-                    '시작하기',
-                    style: TextStyle(
-                      fontFamily: 'Retrosans',
-                      fontSize: 20,
-                    ),
+                    ],
                   ),
-                ),
-              ),
-              _gap,
-              if (gamesServicesController != null) ...[
-                _hideUntilReady(
-                  ready: gamesServicesController.signedIn,
                   child: ElevatedButton(
-                    onPressed: () => gamesServicesController.showAchievements(),
-                    child: const Text('Achievements'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                      ),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      side: BorderSide(
+                        style: BorderStyle.solid,
+                      ),
+                    ),
+                    onPressed: () {
+                      audioController.playSfx(SfxType.buttonTap);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PlaySessionScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      '시작하기',
+                      style: TextStyle(
+                        fontFamily: 'Retrosans',
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
                 ),
                 _gap,
-                _hideUntilReady(
-                  ready: gamesServicesController.signedIn,
-                  child: ElevatedButton(
-                    onPressed: () => gamesServicesController.showLeaderboard(),
-                    child: const Text('Leaderboard'),
+                if (gamesServicesController != null) ...[
+                  _hideUntilReady(
+                    ready: gamesServicesController.signedIn,
+                    child: ElevatedButton(
+                      onPressed: () =>
+                          gamesServicesController.showAchievements(),
+                      child: const Text('Achievements'),
+                    ),
                   ),
+                  _gap,
+                  _hideUntilReady(
+                    ready: gamesServicesController.signedIn,
+                    child: ElevatedButton(
+                      onPressed: () =>
+                          gamesServicesController.showLeaderboard(),
+                      child: const Text('Leaderboard'),
+                    ),
+                  ),
+                  _gap,
+                ],
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 15,
+                        offset: Offset(7.0, 7.0),
+                        color: Colors.black,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 60,
+                      ),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                    ),
+                    onPressed: () {
+                      audioController.playSfx(SfxType.buttonTap);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SettingsScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      '설정하기',
+                      style: TextStyle(
+                        fontFamily: 'Retrosans',
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                _gap,
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 15,
+                        offset: Offset(7.0, 7.0),
+                        color: Colors.black,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 60,
+                      ),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                    ),
+                    onPressed: () {
+                      audioController.playSfx(SfxType.buttonTap);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CollectionScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      '컬렉션',
+                      style: TextStyle(
+                        fontFamily: 'Retrosans',
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                _gap,
+                Padding(
+                  padding: const EdgeInsets.only(top: 32),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: settingsController.muted,
+                    builder: (context, muted, child) {
+                      return IconButton(
+                        onPressed: () => settingsController.toggleMuted(),
+                        icon: Icon(
+                          muted ? Icons.volume_off : Icons.volume_up,
+                          color: Colors.white,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                _gap,
+                const Text(
+                  'Music by Mr Smith',
+                  textAlign: TextAlign.center,
                 ),
                 _gap,
               ],
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 15,
-                      offset: Offset(7.0, 7.0),
-                      color: Colors.black,
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 5,
-                      horizontal: 60,
-                    ),
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                  ),
-                  onPressed: () {
-                    audioController.playSfx(SfxType.buttonTap);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SettingsScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    '설정하기',
-                    style: TextStyle(
-                      fontFamily: 'Retrosans',
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
-              ),
-              _gap,
-              Padding(
-                padding: const EdgeInsets.only(top: 32),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: settingsController.muted,
-                  builder: (context, muted, child) {
-                    return IconButton(
-                      onPressed: () => settingsController.toggleMuted(),
-                      icon: Icon(
-                        muted ? Icons.volume_off : Icons.volume_up,
-                        color: Colors.white,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              _gap,
-              const Text('Music by Mr Smith'),
-              _gap,
-            ],
+            ),
           ),
         ),
       ),

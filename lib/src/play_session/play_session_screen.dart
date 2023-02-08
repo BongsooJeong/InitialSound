@@ -4,10 +4,11 @@
 
 import 'dart:async';
 
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:game_template/src/constants/const_data.dart';
+import 'package:game_template/src/level_selection/levels.dart';
 import 'package:game_template/src/play_session/fragment/keyboard_layout.dart';
 import 'package:game_template/src/play_session/model/string_info.dart';
+import 'package:game_template/src/play_session/fragment/bottom_button_fragment.dart';
 import 'package:logging/logging.dart' hide Level;
 import 'package:provider/provider.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
@@ -21,18 +22,17 @@ import '../game_internals/level_state.dart';
 import '../games_services/games_services.dart';
 import '../games_services/score.dart';
 import '../in_app_purchase/in_app_purchase.dart';
-import '../level_selection/levels.dart';
 import '../player_progress/player_progress.dart';
-import '../style/confetti.dart';
 import 'fragment/quiz_info_fragment.dart';
-import 'model/game_info.dart';
-import 'widget/keyboard_button.dart';
+import 'fragment/specialkey_fragment.dart';
+import 'game_utils.dart';
+import '../player_progress/game_info.dart';
+import 'fragment/game_clear_fragment.dart';
+import 'widget/background_image.dart';
+import 'widget/title_text.dart';
 
 class PlaySessionScreen extends StatefulWidget {
-  final GameLevel level;
-
   const PlaySessionScreen({
-    required this.level,
     super.key,
   });
 
@@ -42,10 +42,10 @@ class PlaySessionScreen extends StatefulWidget {
 
 class _PlaySessionScreenState extends State<PlaySessionScreen> {
   static final _log = Logger('PlaySessionScreen');
-  static const _celebrationDuration = Duration(milliseconds: 5000);
   static const _preCelebrationDuration = Duration(milliseconds: 500);
-  static const _backgroundPreviewDuration = Duration(milliseconds: 500);
+  static const _backgroundPreviewDuration = Duration(milliseconds: 1000);
 
+  late GameLevel _currentLevel;
   int _characterIndex = 0;
   bool _duringCelebration = false;
   bool _duringPreview = false;
@@ -61,183 +61,64 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       providers: [
         ChangeNotifierProvider(
           create: (context) => LevelState(
-//            goal: widget.level.difficulty,
             onWin: _playerWon,
           ),
         ),
       ],
-      child: IgnorePointer(
-        ignoring: _duringCelebration,
-        child: Scaffold(
-          body: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            BackgroundImage(
+              duringCelebration: _duringCelebration,
+              currentLevel: _currentLevel,
+              getOpacity: getOpacity,
+            ),
+            Visibility(
+              visible: !_duringCelebration && !_duringPreview,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Sizes.size20,
+                  vertical: Sizes.size40,
                 ),
-                child: AnimatedOpacity(
-                  opacity: _duringCelebration ? 1.0 : getOpacity(),
-                  duration: Duration(
-                    seconds: 1,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: getBackgroundImage(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Gaps.v32,
+                    TitleText(),
+                    QuizInfoFragment(
+                      characterIndex: _characterIndex,
+                      hintList: _currentResult,
+                      callBack: _onFocusTapped,
+                      category: GameUtils.getCategory(
+                        _currentLevel,
                       ),
                     ),
-                  ),
-                ),
-              ),
-              Visibility(
-                visible: !_duringCelebration,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Sizes.size20,
-                    vertical: Sizes.size40,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Gaps.v32,
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: NeumorphicText(
-                          'ㅊㅅ Quiz',
-                          style: NeumorphicStyle(
-                            color: GameInfoColor,
-                            depth: 4,
-                            intensity: 1,
-                            shadowLightColor: Colors.white,
-                            shadowDarkColor: Colors.grey,
-                          ),
-                          textStyle: NeumorphicTextStyle(
-                            fontSize: Sizes.size28,
-                            fontFamily: 'Retrosans',
-                          ),
-                        ),
-                      ),
-                      Gaps.v5,
-                      QuizInfoFragment(
-                        characterIndex: _characterIndex,
-                        hintList: _currentResult,
-                        callBack: _onFocusTapped,
-                        category: getCategory(),
-                      ),
-                      Spacer(),
-                      /*                       Consumer<LevelState>(
-                        builder: (context, levelState, child) => Slider(
-                          label: 'Level Progress',
-                          autofocus: true,
-                          value: levelState.progress / 100,
-                          onChanged: (value) =>
-                              levelState.setProgress((value * 100).round()),
-                          onChangeEnd: (value) => levelState.evaluate(),
-                        ),
-                      ), */
-                      KeyboardLayout(
-                          keyboardType: _currentKeyboardType,
-                          listener: onKeyboardPressed),
-                      Gaps.v12,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          KeyboardButton(
-                            inputCharacter: '  ↑ Shift  ',
-                            listener: onSpecialkeyPresseed,
-                            isPressed: (_currentKeyboardType ==
-                                KeyboardType.keyboardLayout2),
-                          ),
-                          Gaps.h12,
-                          KeyboardButton(
-                            inputCharacter: '←',
-                            listener: onSpecialkeyPresseed,
-                          ),
-                          Gaps.h12,
-                          KeyboardButton(
-                            inputCharacter: '  Next  ',
-                            listener: onSpecialkeyPresseed,
-                          ),
-                        ],
-                      ),
-                      Spacer(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          NeumorphicButton(
-                            style: NeumorphicStyle(
-                              border: NeumorphicBorder(
-                                color: Colors.black12,
-                                width: 1,
-                              ),
-                              depth: 1,
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Sizes.size32,
-                              vertical: Sizes.size12,
-                            ),
-                            onPressed: restartStage,
-                            child: FaIcon(
-                              FontAwesomeIcons.rotateLeft,
-                              size: Sizes.size24,
-                            ),
-                          ),
-                          NeumorphicButton(
-                            style: NeumorphicStyle(
-                              border: NeumorphicBorder(
-                                color: Colors.black12,
-                                width: 1,
-                              ),
-                              depth: 1,
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Sizes.size32,
-                              vertical: Sizes.size12,
-                            ),
-                            onPressed: () => _onNextTap(),
-                            child: FaIcon(
-                              FontAwesomeIcons.forward,
-                              size: Sizes.size24,
-                            ),
-                          ),
-                          NeumorphicButton(
-                            style: NeumorphicStyle(
-                              border: NeumorphicBorder(
-                                color: Colors.black12,
-                                width: 1,
-                              ),
-                              depth: 1,
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Sizes.size32,
-                              vertical: Sizes.size12,
-                            ),
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: FaIcon(
-                              FontAwesomeIcons.arrowLeft,
-                              size: Sizes.size24,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gaps.v20,
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox.expand(
-                child: Visibility(
-                  visible: _duringCelebration,
-                  child: IgnorePointer(
-                    child: Confetti(
-                      isStopped: !_duringCelebration,
+                    Spacer(),
+                    KeyboardLayout(
+                        key: ValueKey(_currentLevel.hashCode +
+                            _currentKeyboardType.hashCode),
+                        keyboardType: _currentKeyboardType,
+                        listener: onKeyboardPressed),
+                    Gaps.v12,
+                    SpecialKeyFragment(
+                      currentKeyboardType: _currentKeyboardType,
+                      onSpecialkeyPresseed: onSpecialkeyPresseed,
                     ),
-                  ),
+                    Spacer(),
+                    BottomButtons(
+                      restartStage: restartStage,
+                      onNextTap: _onNextTap,
+                    ),
+                    Gaps.v20,
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+            GameClearFragment(
+              duringCelebration: _duringCelebration,
+              onNextTap: _onNextTap,
+            ),
+          ],
         ),
       ),
     );
@@ -246,7 +127,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   @override
   void initState() {
     super.initState();
-
+    _currentLevel = GameInfo.getRandomQuiz();
     restartStage();
     // Preload ad for the win screen.
     final adsRemoved =
@@ -255,11 +136,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       final adsController = context.read<AdsController?>();
       adsController?.preloadAd();
     }
-
-    showPreview();
   }
 
-  Future<void> showPreview() async {
+  Future<void> _showPreview() async {
     setState(() {
       _duringPreview = true;
     });
@@ -271,8 +150,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
 
   void restartStage() {
     setState(() {
+      _duringCelebration = false;
       _initialResult = StringInfo().setInfoFromString(
-        GameInfo.quizInfo[widget.level.number].contents,
+        GameInfo.quizInfo[_currentLevel.number].contents,
       );
       _currentResult.setInfoFromInitialList(
         _initialResult.getInitialCharList(),
@@ -280,19 +160,20 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       _startOfPlay = DateTime.now();
       _characterIndex = _initialResult.getHangulStartIndex();
     });
+    _showPreview();
   }
 
   Future<void> _playerWon() async {
-    _log.info('Level ${widget.level.number} won');
+    _log.info('Level ${_currentLevel.number} won');
 
     final score = Score(
-      widget.level.number,
-      1, //widget.level.difficulty,
+      _currentLevel.number,
+      1, //_currentLevel.difficulty,
       DateTime.now().difference(_startOfPlay),
     );
 
     final playerProgress = context.read<PlayerProgress>();
-    playerProgress.setLevelReached(widget.level.number);
+    playerProgress.setLevelReached(_currentLevel.number);
 
     // Let the player see the game just after winning for a bit.
     await Future<void>.delayed(_preCelebrationDuration);
@@ -308,10 +189,10 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
     final gamesServicesController = context.read<GamesServicesController?>();
     if (gamesServicesController != null) {
       // Award achievement.
-      if (widget.level.awardsAchievement) {
+      if (_currentLevel.awardsAchievement) {
         await gamesServicesController.awardAchievement(
-          android: widget.level.achievementIdAndroid!,
-          iOS: widget.level.achievementIdIOS!,
+          android: _currentLevel.achievementIdAndroid!,
+          iOS: _currentLevel.achievementIdIOS!,
         );
       }
 
@@ -319,23 +200,45 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       await gamesServicesController.submitLeaderboardScore(score);
     }
 
-    /// Give the player some time to see the celebration animation.
-    await Future<void>.delayed(_celebrationDuration);
     if (!mounted) return;
 
-    GameInfo.quizInfo[widget.level.number].isCleared = true;
-    _onNextTap();
+    GameInfo.quizInfo[_currentLevel.number].isCleared = true;
   }
 
   bool checkWin() {
     return _currentResult.resultString == _initialResult.resultString;
   }
 
+  double getOpacity() {
+    if (_duringPreview) return 0.15;
+
+    double baseValue = 0.05;
+    int fullLength = _currentResult.resultString.length;
+    double moveRange = 0.3;
+
+    return baseValue + (moveRange * (_characterIndex / fullLength));
+  }
+
+  InputStatus getCurrentInputStatus() {
+    if (_currentResult.resultStringList[_characterIndex].middle >= 0) {
+      if (_currentResult.resultStringList[_characterIndex].last > 0) {
+        return InputStatus.AllDone;
+      }
+      return InputStatus.MotherCharAdded;
+    }
+    return InputStatus.initialOnly;
+  }
+
+  void _onNextTap() {
+    _currentLevel = GameInfo.getRandomQuiz();
+    restartStage();
+  }
+
   void onKeyboardPressed(String key) {
     print("onKeyboardPressed: $key");
     setState(
       () {
-        if (isJungsungChar(key)) {
+        if (GameUtils.isJungsungChar(key)) {
           _currentResult.addMiddle(_characterIndex, key);
         } else if (getCurrentInputStatus() != InputStatus.initialOnly) {
           _currentResult.addLast(_characterIndex, key);
@@ -390,50 +293,5 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       _characterIndex--;
     while (!_currentResult.resultStringList[_characterIndex].isHangul)
       _characterIndex--;
-  }
-
-  double getOpacity() {
-    if (_duringPreview) return 0.5;
-
-    double baseValue = 0.05;
-    int fullLength = _currentResult.resultString.length;
-    double moveRange = 0.25;
-
-    return baseValue + (moveRange * (_characterIndex / fullLength));
-  }
-
-  bool isJungsungChar(String input) {
-    return Jungsung.indexOf(input) >= 0;
-  }
-
-  InputStatus getCurrentInputStatus() {
-    if (_currentResult.resultStringList[_characterIndex].middle >= 0) {
-      if (_currentResult.resultStringList[_characterIndex].last > 0) {
-        return InputStatus.AllDone;
-      }
-      return InputStatus.MotherCharAdded;
-    }
-    return InputStatus.initialOnly;
-  }
-
-  QuizCategory getCategory() {
-    return GameInfo.quizInfo[widget.level.number].category;
-  }
-
-  void _onNextTap() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlaySessionScreen(
-          level: GameInfo.getRandomQuiz(),
-        ),
-      ),
-    );
-  }
-
-  AssetImage getBackgroundImage() {
-    var imageName = GameInfo.quizInfo[widget.level.number].imageId;
-    var imagePath = "assets/images/gamebg/$imageName.jpg";
-    return AssetImage(imagePath);
   }
 }

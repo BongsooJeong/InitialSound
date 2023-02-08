@@ -131,8 +131,8 @@ class QuizInfoFragment extends StatelessWidget {
     var circleSize = Sizes.size12;
 
     if (_hintList.resultStringList.length > 40) {
-      textSize = Sizes.size20;
-      circleSize = Sizes.size8;
+      textSize = Sizes.size16;
+      circleSize = Sizes.size5;
     }
 
     for (var eachChar in _hintList.resultStringList) {
@@ -155,6 +155,7 @@ class QuizInfoFragment extends StatelessWidget {
               _hintList.resultStringList.indexOf(eachChar),
             ),
             child: ResultCharacter(
+              key: ValueKey(eachChar.hashCode),
               initial: eachChar.getDisplayChar(),
               isFocused: (_characterIndex ==
                   _hintList.resultStringList.indexOf(eachChar)),

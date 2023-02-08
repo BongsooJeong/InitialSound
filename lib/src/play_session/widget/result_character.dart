@@ -45,9 +45,9 @@ class _ResultCharacterState extends State<ResultCharacter>
 
   @override
   void dispose() {
-    super.dispose();
     _controller.reverse();
     _controller.dispose();
+    super.dispose();
   }
 
   @override

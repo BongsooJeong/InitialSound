@@ -21,9 +21,8 @@ import 'src/audio/audio_controller.dart';
 import 'src/crashlytics/crashlytics.dart';
 import 'src/games_services/games_services.dart';
 import 'src/in_app_purchase/in_app_purchase.dart';
-import 'src/play_session/model/game_info.dart';
-import 'src/player_progress/persistence/local_storage_player_progress_persistence.dart';
-import 'src/player_progress/persistence/player_progress_persistence.dart';
+import 'src/player_progress/game_info.dart';
+import 'src/player_progress/player_progress_persistence.dart';
 import 'src/player_progress/player_progress.dart';
 import 'src/settings/persistence/local_storage_settings_persistence.dart';
 import 'src/settings/persistence/settings_persistence.dart';
@@ -108,7 +107,7 @@ void guardedMain() {
   runApp(
     MyApp(
       settingsPersistence: LocalStorageSettingsPersistence(),
-      playerProgressPersistence: LocalStoragePlayerProgressPersistence(),
+      playerProgressPersistence: PlayerProgressPersistence(),
       inAppPurchaseController: inAppPurchaseController,
       adsController: adsController,
       gamesServicesController: gamesServicesController,

@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:game_template/src/constants/const_data.dart';
 import 'package:provider/provider.dart';
 
 import '../in_app_purchase/in_app_purchase.dart';
@@ -20,10 +21,9 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsController>();
-    final palette = context.watch<Palette>();
 
     return Scaffold(
-      backgroundColor: palette.backgroundSettings,
+      backgroundColor: GameDarkColor,
       body: ResponsiveScreen(
         squarishMainArea: ListView(
           children: [
