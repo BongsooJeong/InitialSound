@@ -11,7 +11,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:game_template/src/main_menu/main_menu_screen.dart';
+import 'package:initialsound/src/main_menu/main_menu_screen.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +22,6 @@ import 'src/crashlytics/crashlytics.dart';
 import 'src/games_services/games_services.dart';
 import 'src/in_app_purchase/in_app_purchase.dart';
 import 'src/player_progress/game_info.dart';
-import 'src/player_progress/player_progress_persistence.dart';
 import 'src/player_progress/player_progress.dart';
 import 'src/settings/persistence/local_storage_settings_persistence.dart';
 import 'src/settings/persistence/settings_persistence.dart';
@@ -74,6 +73,7 @@ void guardedMain() {
   );
 
   GameInfo();
+  PlayerProgress.loadClearedList();
 
   // TODO: When ready, uncomment the following lines to enable integrations.
   //       Read the README for more info on each integration.
@@ -107,7 +107,6 @@ void guardedMain() {
   runApp(
     MyApp(
       settingsPersistence: LocalStorageSettingsPersistence(),
-      playerProgressPersistence: PlayerProgressPersistence(),
       inAppPurchaseController: inAppPurchaseController,
       adsController: adsController,
       gamesServicesController: gamesServicesController,
@@ -118,8 +117,6 @@ void guardedMain() {
 Logger _log = Logger('main.dart');
 
 class MyApp extends StatelessWidget {
-  final PlayerProgressPersistence playerProgressPersistence;
-
   final SettingsPersistence settingsPersistence;
 
   final GamesServicesController? gamesServicesController;
@@ -129,7 +126,6 @@ class MyApp extends StatelessWidget {
   final AdsController? adsController;
 
   const MyApp({
-    required this.playerProgressPersistence,
     required this.settingsPersistence,
     required this.inAppPurchaseController,
     required this.adsController,
@@ -142,13 +138,6 @@ class MyApp extends StatelessWidget {
     return AppLifecycleObserver(
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(
-            create: (context) {
-              var progress = PlayerProgress(playerProgressPersistence);
-              progress.getLatestFromStore();
-              return progress;
-            },
-          ),
           Provider<GamesServicesController?>.value(
               value: gamesServicesController),
           Provider<AdsController?>.value(value: adsController),

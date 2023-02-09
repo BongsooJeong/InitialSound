@@ -3,8 +3,8 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:game_template/src/collection/collection_screen.dart';
-import 'package:game_template/src/settings/settings_screen.dart';
+import 'package:initialsound/src/collection/collection_screen.dart';
+import 'package:initialsound/src/settings/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/audio_controller.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:game_template/src/level_selection/levels.dart';
+import 'package:initialsound/src/level_selection/levels.dart';
 
 import '../game_utils.dart';
 
@@ -24,7 +24,7 @@ class BackgroundImage extends StatelessWidget {
       child: AnimatedOpacity(
         opacity: duringCelebration ? 1.0 : getOpacity(),
         duration: Duration(
-          milliseconds: 1000,
+          milliseconds: 500,
         ),
         child: Container(
           decoration: BoxDecoration(

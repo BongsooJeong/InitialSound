@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:game_template/src/collection/collection_constants.dart';
-import 'package:game_template/src/collection/collection_tab_contents.dart';
-import 'package:game_template/src/constants/const_data.dart';
+import 'package:initialsound/src/collection/collection_constants.dart';
+import 'package:initialsound/src/collection/collection_tab_contents.dart';
+import 'package:initialsound/src/constants/const_data.dart';
 
 import '../constants/sizes.dart';
+import '../player_progress/game_info.dart';
 
-class CollectionScreen extends StatelessWidget {
+class CollectionScreen extends StatefulWidget {
   const CollectionScreen({super.key});
+
+  @override
+  State<CollectionScreen> createState() => _CollectionScreenState();
+}
+
+class _CollectionScreenState extends State<CollectionScreen> {
+  final List<String> normal = [];
+  final List<String> normalYet = [];
+  final List<String> special = [];
+  final List<String> specialYet = [];
 
   @override
   Widget build(BuildContext context) {
@@ -56,18 +67,40 @@ class CollectionScreen extends StatelessWidget {
         body: TabBarView(children: [
           CollectionTabContents(
             collectionType: CollectionType.normal,
+            imageIndexList: normal,
           ),
           CollectionTabContents(
             collectionType: CollectionType.special,
+            imageIndexList: special,
           ),
           CollectionTabContents(
             collectionType: CollectionType.normal_missing,
+            imageIndexList: normalYet,
           ),
           CollectionTabContents(
             collectionType: CollectionType.special_missing,
+            imageIndexList: specialYet,
           ),
         ]),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < GameInfo.quizInfo.length; i++) {
+      if (GameInfo.quizInfo[i].isCleared) {
+        normal.add(GameInfo.quizInfo[i].imageId);
+      } else {
+        normalYet.add(GameInfo.quizInfo[i].imageId);
+      }
+
+      if (GameInfo.quizSpecialInfo[i].isCleared) {
+        special.add(GameInfo.quizSpecialInfo[i].imageId);
+      } else {
+        specialYet.add(GameInfo.quizSpecialInfo[i].imageId);
+      }
+    }
   }
 }

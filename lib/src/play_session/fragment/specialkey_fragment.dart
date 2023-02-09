@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:game_template/src/constants/const_data.dart';
+import 'package:initialsound/src/constants/const_data.dart';
 
 import '../../constants/gaps.dart';
 import '../widget/keyboard_button.dart';

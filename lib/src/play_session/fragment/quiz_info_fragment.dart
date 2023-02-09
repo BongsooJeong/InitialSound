@@ -1,5 +1,5 @@
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-import 'package:game_template/src/play_session/model/string_info.dart';
+import 'package:initialsound/src/play_session/model/string_info.dart';
 
 import '../../constants/gaps.dart';
 import '../../constants/sizes.dart';
@@ -23,6 +23,8 @@ class QuizInfoFragment extends StatelessWidget {
   final StringInfo _hintList;
   final void Function(int) _callBack;
   final QuizCategory _category;
+
+  static const IsLongText = 24;
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +92,8 @@ class QuizInfoFragment extends StatelessWidget {
           Gaps.v16,
           Wrap(
             spacing: Sizes.size4,
+            runSpacing:
+                (_hintList.resultStringList.length > IsLongText) ? -4 : 0,
             alignment: WrapAlignment.start,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: hintWidgets(),
@@ -130,9 +134,9 @@ class QuizInfoFragment extends StatelessWidget {
     var textSize = Sizes.size24;
     var circleSize = Sizes.size12;
 
-    if (_hintList.resultStringList.length > 40) {
-      textSize = Sizes.size16;
-      circleSize = Sizes.size5;
+    if (_hintList.resultStringList.length > IsLongText) {
+      textSize = Sizes.size20;
+      circleSize = Sizes.size7;
     }
 
     for (var eachChar in _hintList.resultStringList) {

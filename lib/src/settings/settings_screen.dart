@@ -3,12 +3,11 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:game_template/src/constants/const_data.dart';
+import 'package:initialsound/src/constants/const_data.dart';
 import 'package:provider/provider.dart';
 
 import '../in_app_purchase/in_app_purchase.dart';
 import '../player_progress/player_progress.dart';
-import '../style/palette.dart';
 import '../style/responsive_screen.dart';
 import 'custom_name_dialog.dart';
 import 'settings.dart';
@@ -88,7 +87,7 @@ class SettingsScreen extends StatelessWidget {
               'Reset progress',
               const Icon(Icons.delete),
               onSelected: () {
-                context.read<PlayerProgress>().reset();
+                PlayerProgress.resetClearedList();
 
                 final messenger = ScaffoldMessenger.of(context);
                 messenger.showSnackBar(

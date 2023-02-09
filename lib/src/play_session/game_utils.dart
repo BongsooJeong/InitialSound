@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:game_template/src/level_selection/levels.dart';
+import 'package:initialsound/src/level_selection/levels.dart';
 
 import '../constants/const_data.dart';
 import '../player_progress/game_info.dart';

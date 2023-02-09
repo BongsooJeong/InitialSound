@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../constants/const_data.dart';
+import '../../constants/gaps.dart';
 import '../../constants/sizes.dart';
 
 class BottomButtons extends StatelessWidget {
@@ -9,15 +11,50 @@ class BottomButtons extends StatelessWidget {
     super.key,
     required this.restartStage,
     required this.onNextTap,
+    required this.onBackTap,
   });
 
   final void Function() restartStage;
   final void Function() onNextTap;
+  final Future<bool> Function() onBackTap;
+
+  void _onNextTap(BuildContext context) {
+    showCupertinoDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return CupertinoAlertDialog(
+            title: const Text('다음 퀴즈'),
+            content: const Text('그냥 다음 퀴즈로 넘어갈까요?'),
+            actions: [
+              // The "No" button
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('더 해볼래'),
+                isDefaultAction: false,
+                isDestructiveAction: false,
+              ),
+              // The "Yes" button
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  onNextTap();
+                },
+                child: const Text('가자!'),
+                isDefaultAction: true,
+                isDestructiveAction: true,
+              ),
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
       children: [
         NeumorphicButton(
           style: NeumorphicStyle(
@@ -34,6 +71,7 @@ class BottomButtons extends StatelessWidget {
             color: Colors.white,
           ),
         ),
+        Gaps.h20,
         NeumorphicButton(
           style: NeumorphicStyle(
             color: GameDarkColor,
@@ -42,13 +80,14 @@ class BottomButtons extends StatelessWidget {
             horizontal: Sizes.size32,
             vertical: Sizes.size12,
           ),
-          onPressed: () => onNextTap(),
+          onPressed: () => _onNextTap(context),
           child: FaIcon(
             FontAwesomeIcons.forward,
             size: Sizes.size24,
             color: Colors.white,
           ),
         ),
+        Gaps.h20,
         NeumorphicButton(
           style: NeumorphicStyle(
             color: GameDarkColor,
@@ -57,7 +96,7 @@ class BottomButtons extends StatelessWidget {
             horizontal: Sizes.size32,
             vertical: Sizes.size12,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => onBackTap(),
           child: FaIcon(
             FontAwesomeIcons.arrowLeft,
             size: Sizes.size24,

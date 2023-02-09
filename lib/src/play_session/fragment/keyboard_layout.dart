@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:game_template/src/constants/const_data.dart';
-import 'package:game_template/src/play_session/widget/keyboard_button.dart';
+import 'package:initialsound/src/constants/const_data.dart';
+import 'package:initialsound/src/play_session/widget/keyboard_button.dart';
 import '../../constants/sizes.dart';
 
 class KeyboardLayout extends StatelessWidget {

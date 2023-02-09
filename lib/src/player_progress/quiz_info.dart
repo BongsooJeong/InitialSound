@@ -1,4 +1,4 @@
-import 'package:game_template/src/constants/const_data.dart';
+import 'package:initialsound/src/constants/const_data.dart';
 
 class QuizInfo {
   QuizInfo({

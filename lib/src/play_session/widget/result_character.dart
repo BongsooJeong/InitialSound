@@ -1,4 +1,4 @@
-import 'package:game_template/src/constants/const_data.dart';
+import 'package:initialsound/src/constants/const_data.dart';
 
 import '../../constants/sizes.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
@@ -45,7 +45,6 @@ class _ResultCharacterState extends State<ResultCharacter>
 
   @override
   void dispose() {
-    _controller.reverse();
     _controller.dispose();
     super.dispose();
   }

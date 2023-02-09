@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../constants/sizes.dart';
-import '../player_progress/game_info.dart';
 import 'collection_constants.dart';
 import 'collection_detail_screen.dart';
 
@@ -9,14 +8,17 @@ class CollectionTabContents extends StatelessWidget {
   const CollectionTabContents({
     super.key,
     required this.collectionType,
+    required this.imageIndexList,
   });
 
   final CollectionType collectionType;
+  final List<String> imageIndexList;
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
       padding: EdgeInsets.all(8),
+      itemCount: imageIndexList.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 5,
         crossAxisSpacing: Sizes.size10,
@@ -52,7 +54,8 @@ class CollectionTabContents extends StatelessWidget {
         context,
         MaterialPageRoute(
           builder: (context) => CollectionDetailScreen(
-            imageIndex: index,
+            index: index,
+            imageIndexList: imageIndexList,
             collectionType: collectionType,
           ),
         ),
@@ -61,7 +64,7 @@ class CollectionTabContents extends StatelessWidget {
   }
 
   AssetImage _getImage(int index) {
-    var imageName = GameInfo.quizInfo[index + 1].imageId;
+    var imageName = imageIndexList[index];
 
     switch (collectionType) {
       case CollectionType.normal:

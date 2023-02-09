@@ -110,7 +110,7 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
-    directory: "game_template/"
+    directory: "initialsound/"
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"

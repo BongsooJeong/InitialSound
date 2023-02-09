@@ -46,7 +46,6 @@ class _KeyboardButtonState extends State<KeyboardButton>
 
   @override
   void dispose() {
-    _controller.reverse();
     _controller.dispose();
     super.dispose();
   }
