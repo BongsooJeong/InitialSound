@@ -41,13 +41,13 @@ class GameInfo {
     List<QuizInfo> result = [];
 
     if (isSpecial) {
-      for (var quiz in quizInfo) {
+      for (var quiz in quizSpecialInfo) {
         if (!quiz.isCleared) {
           result.add(quiz);
         }
       }
     } else {
-      for (var quiz in quizSpecialInfo) {
+      for (var quiz in quizInfo) {
         if (!quiz.isCleared) {
           result.add(quiz);
         }

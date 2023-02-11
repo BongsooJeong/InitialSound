@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
+import '../../audio/audio_controller.dart';
+import '../../audio/sounds.dart';
 import '../../constants/const_data.dart';
 import '../../constants/gaps.dart';
 import '../../constants/sizes.dart';
@@ -19,6 +22,9 @@ class BottomButtons extends StatelessWidget {
   final Future<bool> Function() onBackTap;
 
   void _onNextTap(BuildContext context) {
+    final audioController = context.read<AudioController>();
+    audioController.playSfx(SfxType.popup);
+
     showCupertinoDialog(
         context: context,
         builder: (BuildContext ctx) {

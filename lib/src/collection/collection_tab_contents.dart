@@ -9,10 +9,12 @@ class CollectionTabContents extends StatelessWidget {
     super.key,
     required this.collectionType,
     required this.imageIndexList,
+    required this.clearCount,
   });
 
   final CollectionType collectionType;
   final List<String> imageIndexList;
+  final int clearCount;
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +36,7 @@ class CollectionTabContents extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
           ),
           child: Opacity(
-            opacity: (collectionType == CollectionType.normal_missing ||
-                    collectionType == CollectionType.special_missing)
-                ? 0.07
-                : 1.0,
+            opacity: (index > clearCount - 1) ? 0.07 : 1.0,
             child: Image(
               image: _getImage(index),
             ),
@@ -48,14 +47,16 @@ class CollectionTabContents extends StatelessWidget {
   }
 
   void _onTap(BuildContext context, int index) {
-    if (collectionType != CollectionType.normal_missing &&
-        collectionType != CollectionType.special_missing) {
+    if (index < clearCount) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => CollectionDetailScreen(
             index: index,
-            imageIndexList: imageIndexList,
+            imageIndexList: imageIndexList.sublist(
+              0,
+              clearCount,
+            ),
             collectionType: collectionType,
           ),
         ),
@@ -65,14 +66,8 @@ class CollectionTabContents extends StatelessWidget {
 
   AssetImage _getImage(int index) {
     var imageName = imageIndexList[index];
-
-    switch (collectionType) {
-      case CollectionType.normal:
-      case CollectionType.normal_missing:
-        return AssetImage("assets/images/gamebg/$imageName.jpg");
-      case CollectionType.special:
-      case CollectionType.special_missing:
-        return AssetImage("assets/images/gamebg/special/$imageName.jpg");
-    }
+    return (collectionType == CollectionType.normal)
+        ? AssetImage("assets/images/gamebg/$imageName.jpg")
+        : AssetImage("assets/images/gamebg/special/$imageName.jpg");
   }
 }

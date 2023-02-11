@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:initialsound/src/collection/collection_screen.dart';
 import 'package:initialsound/src/settings/settings_screen.dart';
@@ -118,7 +119,6 @@ class MainMenuScreen extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      audioController.playSfx(SfxType.buttonTap);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -208,6 +208,50 @@ class MainMenuScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
                         vertical: 5,
+                        horizontal: 40,
+                      ),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                    ),
+                    onPressed: () {
+                      audioController.playSfx(SfxType.buttonTap);
+                      _showAlert(
+                        title: "스페셜 모드",
+                        message:
+                            "< Paid Swimsuit version > \n향후 버전에서 지원 예정입니다 !",
+                        context: context,
+                      );
+/*                       Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CollectionScreen(),
+                        ),
+                      ); */
+                    },
+                    child: Text(
+                      '스페셜 모드',
+                      style: TextStyle(
+                        fontFamily: 'Retrosans',
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                _gap,
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 15,
+                        offset: Offset(7.0, 7.0),
+                        color: Colors.black,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 5,
                         horizontal: 60,
                       ),
                       backgroundColor: Colors.white,
@@ -249,7 +293,7 @@ class MainMenuScreen extends StatelessWidget {
                 ),
                 _gap,
                 const Text(
-                  'Music by Mr Smith',
+                  'Music by DayDreamSound',
                   textAlign: TextAlign.center,
                 ),
                 _gap,
@@ -282,6 +326,29 @@ class MainMenuScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _showAlert({
+    required String title,
+    required String message,
+    required BuildContext context,
+  }) {
+    showCupertinoDialog(
+        context: context,
+        builder: (context) {
+          return CupertinoAlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              CupertinoDialogAction(
+                  isDefaultAction: true,
+                  child: Text("확인"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  })
+            ],
+          );
+        });
   }
 
   static const _gap = SizedBox(height: 10);

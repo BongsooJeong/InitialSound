@@ -2,15 +2,20 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'package:flutter/material.dart';
 import 'package:initialsound/src/constants/const_data.dart';
+import 'package:initialsound/src/settings/music_info_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../audio/audio_controller.dart';
+import '../audio/sounds.dart';
+import '../constants/gaps.dart';
+import '../constants/sizes.dart';
 import '../in_app_purchase/in_app_purchase.dart';
 import '../player_progress/player_progress.dart';
 import '../style/responsive_screen.dart';
 import 'custom_name_dialog.dart';
 import 'settings.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -26,36 +31,43 @@ class SettingsScreen extends StatelessWidget {
       body: ResponsiveScreen(
         squarishMainArea: ListView(
           children: [
-            _gap,
             const Text(
-              'Settings',
+              '설정',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Permanent Marker',
-                fontSize: 55,
+                fontSize: 35,
                 height: 1,
               ),
             ),
             _gap,
-            const _NameChangeLine(
+/*             const _NameChangeLine(
               'Name',
             ),
+ */
             ValueListenableBuilder<bool>(
               valueListenable: settings.soundsOn,
               builder: (context, soundsOn, child) => _SettingsLine(
-                'Sound FX',
-                Icon(soundsOn ? Icons.graphic_eq : Icons.volume_off),
+                '효과음',
+                Icon(
+                  soundsOn ? Icons.graphic_eq : Icons.volume_off,
+                  color: Colors.blue[300],
+                ),
                 onSelected: () => settings.toggleSoundsOn(),
               ),
             ),
+            Gaps.v10,
             ValueListenableBuilder<bool>(
               valueListenable: settings.musicOn,
               builder: (context, musicOn, child) => _SettingsLine(
-                'Music',
-                Icon(musicOn ? Icons.music_note : Icons.music_off),
+                '음악',
+                Icon(
+                  musicOn ? Icons.music_note : Icons.music_off,
+                  color: Colors.blue[300],
+                ),
                 onSelected: () => settings.toggleMusicOn(),
               ),
             ),
+            Gaps.v10,
             Consumer<InAppPurchaseController?>(
                 builder: (context, inAppPurchase, child) {
               if (inAppPurchase == null) {
@@ -84,11 +96,15 @@ class SettingsScreen extends StatelessWidget {
               );
             }),
             _SettingsLine(
-              'Reset progress',
-              const Icon(Icons.delete),
+              '진행 초기화',
+              Icon(
+                Icons.delete,
+                color: Colors.red[400],
+              ),
               onSelected: () {
                 PlayerProgress.resetClearedList();
-
+                final audioController = context.read<AudioController>();
+                audioController.playSfx(SfxType.erase);
                 final messenger = ScaffoldMessenger.of(context);
                 messenger.showSnackBar(
                   const SnackBar(
@@ -96,14 +112,46 @@ class SettingsScreen extends StatelessWidget {
                 );
               },
             ),
+            Gaps.v10,
+            _SettingsLine(
+              '음악 정보',
+              Icon(
+                Icons.info_outline,
+                color: Colors.blue[300],
+              ),
+              onSelected: () {
+                final audioController = context.read<AudioController>();
+                audioController.playSfx(SfxType.specialButtonTap);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MusicInfoScreen(),
+                  ),
+                );
+              },
+            ),
             _gap,
           ],
         ),
-        rectangularMenuArea: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Back'),
+        rectangularMenuArea: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: NeumorphicButton(
+            style: NeumorphicStyle(
+              color: Colors.grey.shade600,
+              shadowLightColor: Colors.black,
+            ),
+            padding: EdgeInsets.symmetric(
+              vertical: Sizes.size12,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              "돌아가기",
+              style: TextStyle(
+                fontSize: Sizes.size20,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ),
       ),
     );
@@ -171,8 +219,7 @@ class _SettingsLine extends StatelessWidget {
           children: [
             Text(title,
                 style: const TextStyle(
-                  fontFamily: 'Permanent Marker',
-                  fontSize: 30,
+                  fontSize: Sizes.size24,
                 )),
             const Spacer(),
             icon,

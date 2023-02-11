@@ -41,8 +41,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isSpecial = CollectionType.special == widget.collectionType ||
-        CollectionType.special_missing == widget.collectionType;
+    final isSpecial = CollectionType.special == widget.collectionType;
 
     return Scaffold(
       backgroundColor: GameDarkColor,

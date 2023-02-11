@@ -18,11 +18,15 @@ class _CollectionScreenState extends State<CollectionScreen> {
   final List<String> normalYet = [];
   final List<String> special = [];
   final List<String> specialYet = [];
+  late final int normalCount;
+  late final int specialCount;
+  late final int normalRatio;
+  late final int specialRatio;
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 2,
       child: Scaffold(
         backgroundColor: GameDarkColor,
         appBar: AppBar(
@@ -50,16 +54,10 @@ class _CollectionScreenState extends State<CollectionScreen> {
             ),
             tabs: [
               Tab(
-                text: "일반",
+                text: "일반 ($normalRatio%)",
               ),
               Tab(
-                text: "스페셜",
-              ),
-              Tab(
-                text: "일반?",
-              ),
-              Tab(
-                text: "스페셜?",
+                text: "스페셜 ($specialRatio%)",
               ),
             ],
           ),
@@ -68,18 +66,12 @@ class _CollectionScreenState extends State<CollectionScreen> {
           CollectionTabContents(
             collectionType: CollectionType.normal,
             imageIndexList: normal,
+            clearCount: normalCount,
           ),
           CollectionTabContents(
             collectionType: CollectionType.special,
             imageIndexList: special,
-          ),
-          CollectionTabContents(
-            collectionType: CollectionType.normal_missing,
-            imageIndexList: normalYet,
-          ),
-          CollectionTabContents(
-            collectionType: CollectionType.special_missing,
-            imageIndexList: specialYet,
+            clearCount: specialCount,
           ),
         ]),
       ),
@@ -89,18 +81,49 @@ class _CollectionScreenState extends State<CollectionScreen> {
   @override
   void initState() {
     super.initState();
+    Map normalMap = {}, specialMap = {};
     for (int i = 0; i < GameInfo.quizInfo.length; i++) {
       if (GameInfo.quizInfo[i].isCleared) {
-        normal.add(GameInfo.quizInfo[i].imageId);
+        normalMap[GameInfo.quizInfo[i].imageId] =
+            GameInfo.quizInfo[i].clearTime;
       } else {
         normalYet.add(GameInfo.quizInfo[i].imageId);
       }
 
       if (GameInfo.quizSpecialInfo[i].isCleared) {
-        special.add(GameInfo.quizSpecialInfo[i].imageId);
+        specialMap[GameInfo.quizSpecialInfo[i].imageId] =
+            GameInfo.quizSpecialInfo[i].clearTime;
       } else {
         specialYet.add(GameInfo.quizSpecialInfo[i].imageId);
       }
     }
+    normalCount = normalMap.length;
+    final normalSort = Map.fromEntries(
+      normalMap.entries.toList()
+        ..sort(
+          (e2, e1) => e1.value.compareTo(
+            e2.value,
+          ),
+        ),
+    );
+    normal
+        .addAll(normalSort.keys.toList().map((item) => item as String).toList());
+    normal.addAll(normalYet);
+
+    specialCount = specialMap.length;
+    final specialSort = Map.fromEntries(
+      specialMap.entries.toList()
+        ..sort(
+          (e2, e1) => e1.value.compareTo(
+            e2.value,
+          ),
+        ),
+    );
+    special.addAll(
+        specialSort.keys.toList().map((item) => item as String).toList());
+    special.addAll(specialYet);
+
+    normalRatio = ((normalCount / normal.length) * 100).toInt();
+    specialRatio = ((specialCount / special.length) * 100).toInt();
   }
 }

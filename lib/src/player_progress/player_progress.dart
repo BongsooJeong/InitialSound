@@ -14,9 +14,9 @@ class PlayerProgress {
     final specialTimestampList =
         prefs.getStringList(ClearedSpecialTimeStampKey);
 
-    for (int i = 0; i < GameInfo.quizInfo.length; i++) {
-      if (timestampList != null &&
-          timestampList.length == GameInfo.quizInfo.length) {
+    if (timestampList != null &&
+        timestampList.length == GameInfo.quizInfo.length) {
+      for (int i = 0; i < GameInfo.quizInfo.length; i++) {
         int timeStamp = int.parse(timestampList[i]);
         if (timeStamp == -1) {
           GameInfo.quizInfo[i].isCleared = false;
@@ -26,8 +26,10 @@ class PlayerProgress {
           GameInfo.quizInfo[i].clearTime = timeStamp;
         }
       }
-      if (specialTimestampList != null &&
-          specialTimestampList.length == GameInfo.quizInfo.length) {
+    }
+    if (specialTimestampList != null &&
+        specialTimestampList.length == GameInfo.quizInfo.length) {
+      for (int i = 0; i < GameInfo.quizInfo.length; i++) {
         int timeStamp = int.parse(specialTimestampList[i]);
         if (timeStamp == -1) {
           GameInfo.quizSpecialInfo[i].isCleared = false;
@@ -62,10 +64,6 @@ class PlayerProgress {
         );
       }
     }
-    final prevtimestampList = isSpecial
-        ? prefs.getStringList(ClearedSpecialTimeStampKey)
-        : prefs.getStringList(ClearedTimeStampKey);
-
     if (isSpecial)
       prefs.setStringList(ClearedSpecialTimeStampKey, timeStampList);
     else

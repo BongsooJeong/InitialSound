@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../player_progress/player_progress.dart';
 import '../style/palette.dart';
 import '../style/responsive_screen.dart';
 
@@ -16,7 +15,6 @@ class LevelSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.watch<Palette>();
-    final playerProgress = context.watch<PlayerProgress>();
 
     return Scaffold(
       backgroundColor: palette.backgroundLevelSelection,

@@ -88,7 +88,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                         ),
                       ),
                       Gaps.v36,
-                      Gaps.v96,
+                      SizedBox(
+                        height: 280,
+                      ),
                     ],
                   ),
                 ),
@@ -151,6 +153,8 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   }
 
   Future<void> _showPreview() async {
+    final audioController = context.read<AudioController>();
+    audioController.playSfx(SfxType.gameStart);
     setState(() {
       _duringPreview = true;
     });
@@ -241,6 +245,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
 
   void onKeyboardPressed(String key) {
     print("onKeyboardPressed: $key");
+    final audioController = context.read<AudioController>();
+    audioController.playSfx(SfxType.buttonTap);
+
     setState(
       () {
         if (GameUtils.isJungsungChar(key)) {
@@ -255,6 +262,9 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   }
 
   void onSpecialkeyPresseed(String key) {
+    final audioController = context.read<AudioController>();
+    audioController.playSfx(SfxType.specialButtonTap);
+
     if (key == '←') {
       switch (getCurrentInputStatus()) {
         case InputStatus.initialOnly:
@@ -301,6 +311,8 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   }
 
   Future<bool> _onBackTap() {
+    final audioController = context.read<AudioController>();
+    audioController.playSfx(SfxType.popup);
     showCupertinoDialog(
       context: context,
       builder: (BuildContext ctx) {
