@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,15 +30,15 @@ class BottomButtons extends StatelessWidget {
         context: context,
         builder: (BuildContext ctx) {
           return CupertinoAlertDialog(
-            title: const Text('다음 퀴즈'),
-            content: const Text('그냥 다음 퀴즈로 넘어갈까요?'),
+            title: Text(tr("NextQuiz")),
+            content: Text(tr("NextQuizDesc")),
             actions: [
               // The "No" button
               CupertinoDialogAction(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('더 해볼래'),
+                child: Text(tr("TryMode")),
                 isDefaultAction: false,
                 isDestructiveAction: false,
               ),
@@ -47,7 +48,7 @@ class BottomButtons extends StatelessWidget {
                   Navigator.of(context).pop();
                   onNextTap();
                 },
-                child: const Text('가자!'),
+                child: Text(tr("LetsMove")),
                 isDefaultAction: true,
                 isDestructiveAction: true,
               ),

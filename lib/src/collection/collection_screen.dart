@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:initialsound/src/collection/collection_constants.dart';
 import 'package:initialsound/src/collection/collection_tab_contents.dart';
@@ -31,7 +32,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
         backgroundColor: GameDarkColor,
         appBar: AppBar(
           title: Text(
-            "컬렉션",
+            tr("Collection"),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: GamePrimaryColor,
@@ -54,10 +55,10 @@ class _CollectionScreenState extends State<CollectionScreen> {
             ),
             tabs: [
               Tab(
-                text: "일반 ($normalRatio%)",
+                text: "${tr("Normal")} ($normalRatio%)",
               ),
               Tab(
-                text: "스페셜 ($specialRatio%)",
+                text: "${tr("Special")} ($specialRatio%)",
               ),
             ],
           ),
@@ -106,8 +107,8 @@ class _CollectionScreenState extends State<CollectionScreen> {
           ),
         ),
     );
-    normal
-        .addAll(normalSort.keys.toList().map((item) => item as String).toList());
+    normal.addAll(
+        normalSort.keys.toList().map((item) => item as String).toList());
     normal.addAll(normalYet);
 
     specialCount = specialMap.length;

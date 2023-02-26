@@ -22,8 +22,7 @@ List<String> soundTypeToFilename(SfxType type) {
       ];
     case SfxType.gameStart:
       return const [
-        'startIntro.wav',
-        'startIntro2.mp3',
+        'startIntro.mp3',
       ];
     case SfxType.popup:
       return const [

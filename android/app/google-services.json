@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "78054398709",
+    "project_id": "initialquiz-6af6b",
+    "storage_bucket": "initialquiz-6af6b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:78054398709:android:e5841f2914befeb7b283bc",
+        "android_client_info": {
+          "package_name": "com.pssoft.initialsound"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "78054398709-fvmrefh3f5mq1p2mpp69mpj7264fpp6a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEogHTrADujThn7GwidsWP0LHW3vU6BDU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "78054398709-fvmrefh3f5mq1p2mpp69mpj7264fpp6a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

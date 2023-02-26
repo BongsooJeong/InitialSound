@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:initialsound/src/constants/const_data.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -57,10 +58,18 @@ class MusicInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("음악 정보"),
+        elevation: 1,
+        backgroundColor: GameDarkColor,
+        shadowColor: Colors.white,
+        title: Text(
+          tr("MusicInfo"),
+          style: TextStyle(
+            color: GamePrimaryColor,
+          ),
+        ),
       ),
       body: Container(
-        color: GamePrimaryColor,
+        color: Colors.grey[900],
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView.builder(
@@ -87,7 +96,7 @@ class MusicInfoScreen extends StatelessWidget {
                             musicInfoList[index * 2],
                             style: TextStyle(
                               fontSize: Sizes.size14,
-                              color: GameDarkColor,
+                              color: GamePrimaryColor,
                             ),
                           ),
                         ),

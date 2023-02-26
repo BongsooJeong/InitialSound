@@ -2,6 +2,8 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:initialsound/src/constants/const_data.dart';
 import 'package:initialsound/src/settings/music_info_screen.dart';
 import 'package:provider/provider.dart';
@@ -31,8 +33,8 @@ class SettingsScreen extends StatelessWidget {
       body: ResponsiveScreen(
         squarishMainArea: ListView(
           children: [
-            const Text(
-              '설정',
+            Text(
+              tr("Settings"),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 35,
@@ -47,7 +49,7 @@ class SettingsScreen extends StatelessWidget {
             ValueListenableBuilder<bool>(
               valueListenable: settings.soundsOn,
               builder: (context, soundsOn, child) => _SettingsLine(
-                '효과음',
+                tr("Effects"),
                 Icon(
                   soundsOn ? Icons.graphic_eq : Icons.volume_off,
                   color: Colors.blue[300],
@@ -59,7 +61,7 @@ class SettingsScreen extends StatelessWidget {
             ValueListenableBuilder<bool>(
               valueListenable: settings.musicOn,
               builder: (context, musicOn, child) => _SettingsLine(
-                '음악',
+                tr("Music"),
                 Icon(
                   musicOn ? Icons.music_note : Icons.music_off,
                   color: Colors.blue[300],
@@ -96,25 +98,16 @@ class SettingsScreen extends StatelessWidget {
               );
             }),
             _SettingsLine(
-              '진행 초기화',
+              tr("ProgressReset"),
               Icon(
                 Icons.delete,
                 color: Colors.red[400],
               ),
-              onSelected: () {
-                PlayerProgress.resetClearedList();
-                final audioController = context.read<AudioController>();
-                audioController.playSfx(SfxType.erase);
-                final messenger = ScaffoldMessenger.of(context);
-                messenger.showSnackBar(
-                  const SnackBar(
-                      content: Text('Player progress has been reset.')),
-                );
-              },
+              onSelected: () => _onClearGame(context),
             ),
             Gaps.v10,
             _SettingsLine(
-              '음악 정보',
+              tr("MusicInfo"),
               Icon(
                 Icons.info_outline,
                 color: Colors.blue[300],
@@ -129,6 +122,17 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 );
               },
+            ),
+            Gaps.v10,
+            _SettingsLine(
+              "Version Info",
+              Text(
+                "v1.0",
+                style: TextStyle(
+                  color: Colors.blue[300],
+                ),
+              ),
+              onSelected: () {},
             ),
             _gap,
           ],
@@ -145,7 +149,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              "돌아가기",
+              tr("Back"),
               style: TextStyle(
                 fontSize: Sizes.size20,
               ),
@@ -155,6 +159,49 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onClearGame(BuildContext context) {
+    final audioController = context.read<AudioController>();
+    audioController.playSfx(SfxType.popup);
+
+    showCupertinoDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return CupertinoAlertDialog(
+            title: Text(tr("ProgressReset")),
+            content: Text(tr("ProgressResetDesc")),
+            actions: [
+              // The "No" button
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(tr("Cancel")),
+                isDefaultAction: false,
+                isDestructiveAction: false,
+              ),
+              // The "Yes" button
+              CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  PlayerProgress.resetClearedList();
+                  final audioController = context.read<AudioController>();
+                  audioController.playSfx(SfxType.erase);
+                  final messenger = ScaffoldMessenger.of(context);
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(tr("ProgressResetDone")),
+                    ),
+                  );
+                },
+                child: Text(tr("Reset")),
+                isDefaultAction: true,
+                isDestructiveAction: true,
+              ),
+            ],
+          );
+        });
   }
 }
 

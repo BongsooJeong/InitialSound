@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:initialsound/src/play_session/model/string_info.dart';
 
@@ -106,13 +107,13 @@ class QuizInfoFragment extends StatelessWidget {
   String getCategoryTitle() {
     switch (_category) {
       case QuizCategory.drama:
-        return '드라마';
+        return tr("Drama");
       case QuizCategory.kpop:
-        return 'K팝';
+        return tr("KPOP");
       case QuizCategory.movie:
-        return '영화';
+        return tr("Movie");
       case QuizCategory.proverb:
-        return '속담';
+        return tr("Proverb");
     }
   }
 

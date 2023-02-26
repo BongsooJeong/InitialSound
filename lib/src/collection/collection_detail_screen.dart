@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:initialsound/src/constants/const_data.dart';
 
@@ -48,8 +49,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       appBar: AppBar(
         title: Text(
           isSpecial
-              ? "스페셜 컬렉션  #${widget.imageIndexList[_currentIndex]}"
-              : "일반 컬렉션  #${widget.imageIndexList[_currentIndex]}",
+              ? "${tr("SpecialCollection")}  #${widget.imageIndexList[_currentIndex]}"
+              : "${tr("NormalCollection")}  #${widget.imageIndexList[_currentIndex]}",
           style: TextStyle(
             color: GamePrimaryColor,
           ),

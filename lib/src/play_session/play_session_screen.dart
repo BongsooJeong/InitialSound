@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:initialsound/src/constants/const_data.dart';
 import 'package:initialsound/src/level_selection/levels.dart';
@@ -15,13 +16,11 @@ import 'package:logging/logging.dart' hide Level;
 import 'package:provider/provider.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
-import '../ads/ads_controller.dart';
 import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
 import '../constants/gaps.dart';
 import '../constants/sizes.dart';
 import '../games_services/games_services.dart';
-import '../in_app_purchase/in_app_purchase.dart';
 import 'fragment/quiz_info_fragment.dart';
 import 'fragment/specialkey_fragment.dart';
 import 'game_utils.dart';
@@ -42,13 +41,15 @@ class PlaySessionScreen extends StatefulWidget {
 class _PlaySessionScreenState extends State<PlaySessionScreen> {
   static final _log = Logger('PlaySessionScreen');
   static const _preCelebrationDuration = Duration(milliseconds: 500);
-  static const _backgroundPreviewDuration = Duration(milliseconds: 1000);
+  static const _hintStage = 359;
 
   late GameLevel _currentLevel;
   int _characterIndex = 0;
   bool _duringCelebration = false;
   bool _duringPreview = false;
   KeyboardType _currentKeyboardType = KeyboardType.keyboardLayout1;
+  bool _isSpecialGame = true;
+  var _backgroundPreviewDuration;
 
   StringInfo _initialResult = StringInfo();
   StringInfo _currentResult = StringInfo();
@@ -65,6 +66,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
               duringCelebration: _duringCelebration,
               currentLevel: _currentLevel,
               getOpacity: getOpacity,
+              isSpecial: _isSpecialGame,
             ),
             Visibility(
               visible: !_duringCelebration && !_duringPreview,
@@ -87,9 +89,13 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                           _currentLevel,
                         ),
                       ),
-                      Gaps.v36,
+                      Gaps.v4,
+                      _getHint(),
+                      Gaps.v32,
                       SizedBox(
-                        height: 280,
+                        height: (_initialResult.resultStringList.length > 30)
+                            ? 500
+                            : 280,
                       ),
                     ],
                   ),
@@ -139,17 +145,24 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
   @override
   void initState() {
     super.initState();
-    _currentLevel = GameInfo.getRandomQuiz();
+
+    _currentLevel = GameInfo.isFirstGame()
+        ? GameLevel(number: _hintStage)
+        : GameInfo.getRandomQuiz();
     //_currentLevel = GameLevel(number: 351);
+
+    _backgroundPreviewDuration = _isSpecialGame
+        ? Duration(milliseconds: 2000)
+        : Duration(milliseconds: 1000);
 
     restartStage();
     // Preload ad for the win screen.
-    final adsRemoved =
+/*     final adsRemoved =
         context.read<InAppPurchaseController?>()?.adRemoval.active ?? false;
     if (!adsRemoved) {
       final adsController = context.read<AdsController?>();
       adsController?.preloadAd();
-    }
+    } */
   }
 
   Future<void> _showPreview() async {
@@ -317,8 +330,8 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       context: context,
       builder: (BuildContext ctx) {
         return CupertinoAlertDialog(
-          title: const Text('돌아가기'),
-          content: const Text('진행을 취소하고 타이틀 화면으로\r\n 이동할까요?'),
+          title: Text(tr('Back')),
+          content: Text(tr('BackDesc')),
           actions: [
             // The "Yes" button
             // The "No" button
@@ -326,7 +339,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('취소'),
+              child: Text(tr("Cancel")),
               isDefaultAction: false,
               isDestructiveAction: false,
             ),
@@ -335,7 +348,7 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
-              child: const Text('확인'),
+              child: Text(tr("Confirm")),
               isDefaultAction: true,
               isDestructiveAction: true,
             ),
@@ -344,5 +357,18 @@ class _PlaySessionScreenState extends State<PlaySessionScreen> {
       },
     );
     return Future.value(false);
+  }
+
+  Widget _getHint() {
+    if (_currentLevel.number != _hintStage || !GameInfo.isFirstGame()) {
+      return Gaps.h1;
+    }
+    return Text(
+      "${tr("Firsthint")} : ${_initialResult.resultString}",
+      style: TextStyle(
+        color: GameDarkColor,
+        fontSize: Sizes.size16,
+      ),
+    );
   }
 }

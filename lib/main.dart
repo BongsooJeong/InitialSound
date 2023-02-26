@@ -7,6 +7,9 @@
 // import 'package:firebase_core/firebase_core.dart';
 // import 'firebase_options.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +18,7 @@ import 'package:initialsound/src/main_menu/main_menu_screen.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
-import 'src/ads/ads_controller.dart';
+import 'firebase_options.dart';
 import 'src/app_lifecycle/app_lifecycle.dart';
 import 'src/audio/audio_controller.dart';
 import 'src/crashlytics/crashlytics.dart';
@@ -46,6 +49,16 @@ Future<void> main() async {
   //     debugPrint("Firebase couldn't be initialized: $e");
   //   }
   // }
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseAppCheck.instance.activate(
+    webRecaptchaSiteKey: 'recaptcha-v3-site-key',
+    androidProvider: AndroidProvider.debug,
+  );
 
   await guardWithCrashlytics(
     guardedMain,
@@ -78,7 +91,6 @@ void guardedMain() {
   // TODO: When ready, uncomment the following lines to enable integrations.
   //       Read the README for more info on each integration.
 
-  AdsController? adsController;
   // if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
   //   /// Prepare the google_mobile_ads plugin so that the first ad loads
   //   /// faster. This can be done later or with a delay if startup
@@ -104,14 +116,18 @@ void guardedMain() {
   //   inAppPurchaseController.restorePurchases();
   // }
 
-  runApp(
-    MyApp(
+  runApp(EasyLocalization(
+    saveLocale: true,
+    useOnlyLangCode: true,
+    supportedLocales: [Locale('en'), Locale('ko')],
+    path: 'assets/translations',
+    fallbackLocale: Locale('en'),
+    child: MyApp(
       settingsPersistence: LocalStorageSettingsPersistence(),
       inAppPurchaseController: inAppPurchaseController,
-      adsController: adsController,
       gamesServicesController: gamesServicesController,
     ),
-  );
+  ));
 }
 
 Logger _log = Logger('main.dart');
@@ -123,12 +139,9 @@ class MyApp extends StatelessWidget {
 
   final InAppPurchaseController? inAppPurchaseController;
 
-  final AdsController? adsController;
-
   const MyApp({
     required this.settingsPersistence,
     required this.inAppPurchaseController,
-    required this.adsController,
     required this.gamesServicesController,
     super.key,
   });
@@ -140,7 +153,6 @@ class MyApp extends StatelessWidget {
         providers: [
           Provider<GamesServicesController?>.value(
               value: gamesServicesController),
-          Provider<AdsController?>.value(value: adsController),
           ChangeNotifierProvider<InAppPurchaseController?>.value(
               value: inAppPurchaseController),
           Provider<SettingsController>(
@@ -172,6 +184,9 @@ class MyApp extends StatelessWidget {
           final palette = context.watch<Palette>();
 
           return MaterialApp(
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
             title: 'ㅊㅅ Quiz',
             theme: ThemeData.from(
               useMaterial3: true,

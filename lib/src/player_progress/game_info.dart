@@ -64,9 +64,15 @@ class GameInfo {
     print(
       "This stage is ${quizInfo[unclearedStage[randomStage].index].imageId}",
     );
-    print(
+/*     print(
       "This stage is ${quizInfo[unclearedStage[randomStage].index].contents}",
     );
+ */
     return GameLevel(number: unclearedStage[randomStage].index);
   }
+
+  static bool isFirstGame() {
+    return getUnclearedQuizList().length == quizInfo.length;
+  }
+  
 }

@@ -7,6 +7,7 @@ class PlayerProgress {
 
   static const ClearedTimeStampKey = "clearedTimeStamp";
   static const ClearedSpecialTimeStampKey = "clearedSpecialTimeStamp";
+  static bool isFirst = true;
 
   static void loadClearedList() async {
     final prefs = await instanceFuture;
@@ -26,6 +27,7 @@ class PlayerProgress {
           GameInfo.quizInfo[i].clearTime = timeStamp;
         }
       }
+      isFirst = false;
     }
     if (specialTimestampList != null &&
         specialTimestampList.length == GameInfo.quizInfo.length) {
@@ -39,34 +41,35 @@ class PlayerProgress {
           GameInfo.quizSpecialInfo[i].clearTime = timeStamp;
         }
       }
+      isFirst = false;
     }
   }
-
+  
   static void resetClearedList() async {
-    final prefs = await instanceFuture;
-    List<String> timeStampList = [];
-    prefs.setStringList(ClearedTimeStampKey, timeStampList);
-    prefs.setStringList(ClearedSpecialTimeStampKey, timeStampList);
+    for (int i = 0; i < GameInfo.quizInfo.length; i++) {
+      GameInfo.quizInfo[i].isCleared = false;
+      GameInfo.quizInfo[i].clearTime = -1;
+      GameInfo.quizSpecialInfo[i].isCleared = false;
+      GameInfo.quizSpecialInfo[i].clearTime = -1;
+    }
+
+    saveClearedList();
   }
 
-  static void saveClearedList({isSpecial = false}) async {
+  static void saveClearedList() async {
     final prefs = await instanceFuture;
     List<String> timeStampList = [];
+    List<String> timeStampSpecialList = [];
 
     for (int i = 0; i < GameInfo.quizInfo.length; i++) {
-      if (isSpecial) {
-        timeStampList.add(
-          GameInfo.quizSpecialInfo[i].clearTime.toString(),
-        );
-      } else {
-        timeStampList.add(
-          GameInfo.quizInfo[i].clearTime.toString(),
-        );
-      }
+      timeStampSpecialList.add(
+        GameInfo.quizSpecialInfo[i].clearTime.toString(),
+      );
+      timeStampList.add(
+        GameInfo.quizInfo[i].clearTime.toString(),
+      );
     }
-    if (isSpecial)
-      prefs.setStringList(ClearedSpecialTimeStampKey, timeStampList);
-    else
-      prefs.setStringList(ClearedTimeStampKey, timeStampList);
+    prefs.setStringList(ClearedSpecialTimeStampKey, timeStampSpecialList);
+    prefs.setStringList(ClearedTimeStampKey, timeStampList);
   }
 }

@@ -2,6 +2,7 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:initialsound/src/collection/collection_screen.dart';
@@ -91,7 +92,7 @@ class MainMenuScreen extends StatelessWidget {
           ),
           rectangularMenuArea: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: Sizes.size72,
+              horizontal: Sizes.size56,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -126,8 +127,8 @@ class MainMenuScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text(
-                      '시작하기',
+                    child: Text(
+                      tr("Start"),
                       style: TextStyle(
                         fontFamily: 'Retrosans',
                         fontSize: 20,
@@ -185,7 +186,7 @@ class MainMenuScreen extends StatelessWidget {
                       );
                     },
                     child: Text(
-                      '설정하기',
+                      tr("Settings"),
                       style: TextStyle(
                         fontFamily: 'Retrosans',
                         fontSize: 20,
@@ -216,9 +217,8 @@ class MainMenuScreen extends StatelessWidget {
                     onPressed: () {
                       audioController.playSfx(SfxType.buttonTap);
                       _showAlert(
-                        title: "스페셜 모드",
-                        message:
-                            "< Paid Swimsuit version > \n향후 버전에서 지원 예정입니다 !",
+                        title: tr("SpecialMode"),
+                        message: tr("WillSupportedLater"),
                         context: context,
                       );
 /*                       Navigator.push(
@@ -229,7 +229,7 @@ class MainMenuScreen extends StatelessWidget {
                       ); */
                     },
                     child: Text(
-                      '스페셜 모드',
+                      tr("SpecialMode"),
                       style: TextStyle(
                         fontFamily: 'Retrosans',
                         fontSize: 20,
@@ -267,7 +267,7 @@ class MainMenuScreen extends StatelessWidget {
                       );
                     },
                     child: Text(
-                      '컬렉션',
+                      tr("Collection"),
                       style: TextStyle(
                         fontFamily: 'Retrosans',
                         fontSize: 20,
@@ -342,7 +342,7 @@ class MainMenuScreen extends StatelessWidget {
             actions: [
               CupertinoDialogAction(
                   isDefaultAction: true,
-                  child: Text("확인"),
+                  child: Text(tr("Confirm")),
                   onPressed: () {
                     Navigator.pop(context);
                   })

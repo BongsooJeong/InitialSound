@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/const_data.dart';
@@ -48,7 +49,7 @@ class GameClearFragment extends StatelessWidget {
                     ),
                     Gaps.v10,
                     Text(
-                      "새로운 카드를 획득했습니다",
+                      tr("NewCard"),
                       style: TextStyle(
                         fontSize: Sizes.size20,
                         color: GamePrimaryColor,
