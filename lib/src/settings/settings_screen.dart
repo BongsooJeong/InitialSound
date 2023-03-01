@@ -12,10 +12,8 @@ import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
 import '../constants/gaps.dart';
 import '../constants/sizes.dart';
-import '../in_app_purchase/in_app_purchase.dart';
 import '../player_progress/player_progress.dart';
 import '../style/responsive_screen.dart';
-import 'custom_name_dialog.dart';
 import 'settings.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
@@ -70,33 +68,6 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             Gaps.v10,
-            Consumer<InAppPurchaseController?>(
-                builder: (context, inAppPurchase, child) {
-              if (inAppPurchase == null) {
-                // In-app purchases are not supported yet.
-                // Go to lib/main.dart and uncomment the lines that create
-                // the InAppPurchaseController.
-                return const SizedBox.shrink();
-              }
-
-              Widget icon;
-              VoidCallback? callback;
-              if (inAppPurchase.adRemoval.active) {
-                icon = const Icon(Icons.check);
-              } else if (inAppPurchase.adRemoval.pending) {
-                icon = const CircularProgressIndicator();
-              } else {
-                icon = const Icon(Icons.ad_units);
-                callback = () {
-                  inAppPurchase.buy();
-                };
-              }
-              return _SettingsLine(
-                'Remove ads',
-                icon,
-                onSelected: callback,
-              );
-            }),
             _SettingsLine(
               tr("ProgressReset"),
               Icon(
@@ -202,46 +173,6 @@ class SettingsScreen extends StatelessWidget {
             ],
           );
         });
-  }
-}
-
-class _NameChangeLine extends StatelessWidget {
-  final String title;
-
-  const _NameChangeLine(this.title);
-
-  @override
-  Widget build(BuildContext context) {
-    final settings = context.watch<SettingsController>();
-
-    return InkResponse(
-      highlightShape: BoxShape.rectangle,
-      onTap: () => showCustomNameDialog(context),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(title,
-                style: const TextStyle(
-                  fontFamily: 'Permanent Marker',
-                  fontSize: 30,
-                )),
-            const Spacer(),
-            ValueListenableBuilder(
-              valueListenable: settings.playerName,
-              builder: (context, name, child) => Text(
-                '‘$name’',
-                style: const TextStyle(
-                  fontFamily: 'Permanent Marker',
-                  fontSize: 30,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

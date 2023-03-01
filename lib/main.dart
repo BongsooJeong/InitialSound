@@ -14,6 +14,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:initialsound/src/in_app_purchase/purchase_api.dart';
 import 'package:initialsound/src/main_menu/main_menu_screen.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,6 @@ import 'src/app_lifecycle/app_lifecycle.dart';
 import 'src/audio/audio_controller.dart';
 import 'src/crashlytics/crashlytics.dart';
 import 'src/games_services/games_services.dart';
-import 'src/in_app_purchase/in_app_purchase.dart';
 import 'src/player_progress/game_info.dart';
 import 'src/player_progress/player_progress.dart';
 import 'src/settings/persistence/local_storage_settings_persistence.dart';
@@ -59,6 +59,7 @@ Future<void> main() async {
     webRecaptchaSiteKey: 'recaptcha-v3-site-key',
     androidProvider: AndroidProvider.debug,
   );
+  await PurchaseApi.init();
 
   await guardWithCrashlytics(
     guardedMain,
@@ -88,32 +89,11 @@ void guardedMain() {
   GameInfo();
   PlayerProgress.loadClearedList();
 
-  // TODO: When ready, uncomment the following lines to enable integrations.
-  //       Read the README for more info on each integration.
-
-  // if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-  //   /// Prepare the google_mobile_ads plugin so that the first ad loads
-  //   /// faster. This can be done later or with a delay if startup
-  //   /// experience suffers.
-  //   adsController = AdsController(MobileAds.instance);
-  //   adsController.initialize();
-  // }
-
   GamesServicesController? gamesServicesController;
   // if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
   //   gamesServicesController = GamesServicesController()
   //     // Attempt to log the player in.
   //     ..initialize();
-  // }
-
-  InAppPurchaseController? inAppPurchaseController;
-  // if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-  //   inAppPurchaseController = InAppPurchaseController(InAppPurchase.instance)
-  //     // Subscribing to [InAppPurchase.instance.purchaseStream] as soon
-  //     // as possible in order not to miss any updates.
-  //     ..subscribe();
-  //   // Ask the store what the player has bought already.
-  //   inAppPurchaseController.restorePurchases();
   // }
 
   runApp(EasyLocalization(
@@ -124,7 +104,6 @@ void guardedMain() {
     fallbackLocale: Locale('en'),
     child: MyApp(
       settingsPersistence: LocalStorageSettingsPersistence(),
-      inAppPurchaseController: inAppPurchaseController,
       gamesServicesController: gamesServicesController,
     ),
   ));
@@ -137,11 +116,8 @@ class MyApp extends StatelessWidget {
 
   final GamesServicesController? gamesServicesController;
 
-  final InAppPurchaseController? inAppPurchaseController;
-
   const MyApp({
     required this.settingsPersistence,
-    required this.inAppPurchaseController,
     required this.gamesServicesController,
     super.key,
   });
@@ -153,8 +129,6 @@ class MyApp extends StatelessWidget {
         providers: [
           Provider<GamesServicesController?>.value(
               value: gamesServicesController),
-          ChangeNotifierProvider<InAppPurchaseController?>.value(
-              value: inAppPurchaseController),
           Provider<SettingsController>(
             lazy: false,
             create: (context) => SettingsController(

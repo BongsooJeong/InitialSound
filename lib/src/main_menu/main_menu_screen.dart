@@ -3,9 +3,11 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:initialsound/src/collection/collection_screen.dart';
+import 'package:initialsound/src/in_app_purchase/entitlement.dart';
+import 'package:initialsound/src/in_app_purchase/paywall_widget.dart';
+import 'package:initialsound/src/in_app_purchase/revenuecat.dart';
 import 'package:initialsound/src/settings/settings_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +15,7 @@ import '../audio/audio_controller.dart';
 import '../audio/sounds.dart';
 import '../constants/sizes.dart';
 import '../games_services/games_services.dart';
+import '../in_app_purchase/purchase_api.dart';
 import '../play_session/play_session_screen.dart';
 import '../settings/settings.dart';
 import '../style/palette.dart';
@@ -27,6 +30,8 @@ class MainMenuScreen extends StatelessWidget {
     final gamesServicesController = context.watch<GamesServicesController?>();
     final settingsController = context.watch<SettingsController>();
     final audioController = context.watch<AudioController>();
+
+    final entitlement = RevenueCatProvider.getPurchaseStatus();
 
     return Container(
       decoration: BoxDecoration(
@@ -216,17 +221,11 @@ class MainMenuScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       audioController.playSfx(SfxType.buttonTap);
-                      _showAlert(
-                        title: tr("SpecialMode"),
-                        message: tr("WillSupportedLater"),
-                        context: context,
-                      );
-/*                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CollectionScreen(),
-                        ),
-                      ); */
+                      if (entitlement == Entitlement.special) {
+                        settingsController.toggleSpecialMode();
+                      } else {
+                        fetchOffers(context);
+                      }
                     },
                     child: Text(
                       tr("SpecialMode"),
@@ -328,27 +327,35 @@ class MainMenuScreen extends StatelessWidget {
     );
   }
 
-  void _showAlert({
-    required String title,
-    required String message,
-    required BuildContext context,
-  }) {
-    showCupertinoDialog(
+  Future fetchOffers(BuildContext context) async {
+    final offerings = await PurchaseApi.fetchOffers();
+
+    if (offerings.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No Plans Found',
+          ),
+        ),
+      );
+    } else {
+      final packages = offerings
+          .map((offer) => offer.availablePackages)
+          .expand((pair) => pair)
+          .toList();
+
+      showModalBottomSheet(
         context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [
-              CupertinoDialogAction(
-                  isDefaultAction: true,
-                  child: Text(tr("Confirm")),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  })
-            ],
-          );
-        });
+        builder: (context) => PaywallWidget(
+          packages: packages,
+          title: tr("SpecialModePayWall"),
+          onClickPackage: (package) async {
+            await PurchaseApi.purchasePackage(package);
+            Navigator.pop(context);
+          },
+        ),
+      );
+    }
   }
 
   static const _gap = SizedBox(height: 10);
